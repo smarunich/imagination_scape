@@ -1,0 +1,9 @@
+{
+    "VirtualService": [
+        {
+            "network_profile_ref": "/api/networkprofile/?tenant=admin&name=NOMATCH",
+            "weight": 9999999,
+            "name": "NOMATCH"
+        }
+    ]
+}

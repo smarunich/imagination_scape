@@ -1,0 +1,8 @@
+{
+    "VirtualService": [
+        {
+            "network_profile_ref": "/api/networkprofile/?tenant=admin&name=System-UDP-Per-PktNOMATCH",
+            "weight": 1
+        }
+    ]
+}
