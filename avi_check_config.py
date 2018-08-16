@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import json
+import re
 import pprint
 
 SKIP_TYPE = [
@@ -8,12 +9,11 @@ SKIP_TYPE = [
 
 class avi_object(object):
     def _get_config(self):
-        get_config = {}
+        _get_config = {}
         attrs = filter(lambda x: x.startswith("_") == False, dir(self))
         for attr in attrs:
-            get_config[attr] = getattr(self,attr)
-        return get_config
-
+            _get_config[attr] = getattr(self, attr)
+        return _get_config
 
 def json2object(file_path):
     obj_dict = {}
@@ -30,24 +30,24 @@ def json2object(file_path):
 
 def universal_cmp(a,b):
     if type(a) == str and type(b) == str:
-        if a == b:
+        if re.search(a,b):
             return True
     if type(a) == unicode and type(b) == unicode:
-        if a.decode('utf-8') == b.decode('utf-8'):
+        if re.search(a.decode('utf-8'),b.decode('utf-8')):
             return True
     elif type(a) == int and type(b) == int:
-        if a == b:
-            return True
-    elif type(a) == int and type(b) == int:
-        if a == b:
+        if re.search(str(a), str(b)):
             return True
     elif type(a) == list and type(b) ==list:
-        return [i for i, j in zip(a, b) if i != j]
+        if sorted(a) == sorted(b):
+            return True
+    elif type(a) == dict and type(b) == dict:
+        if sorted(a) == sorted(b):
+            return True
+    else:
+        if a == b:
+            return True
 
-
-print(universal_cmp('test','test'))
-print(universal_cmp(1, 1))
-print(universal_cmp([1,2],[1,2]))
 
 config_from_backup = json2object('config.json')
 
@@ -61,10 +61,19 @@ pattern3_from_file = json2object('pattern3.json')
 pattern4_from_file = json2object('pattern4.json')
 # pattern5: full match on key, partial match on values
 pattern5_from_file = json2object('pattern5.json')
+# pattern6: full match on key, partial match on values, includes lists and dicts in lists
+pattern6_from_file = json2object('pattern6.json')
+# pattern7: full match on key, partial match on values, includes lists and dicts in lists
+pattern7_from_file = json2object('pattern7.json')
+
+
+# __cmp__, config becomes self
+#config.cmp(pattern)
 
 def pattern_match(config,pattern):
-    match_obj = {}
-    miss_obj = {}
+    match_objs = {}
+    miss_objs = {}
+    miss_keys = {}
     # Extract keys from pattern (keys will be VirtualService, Pool, etc) - patter_obj_type
     for pattern_obj_type in pattern.keys():
         # Only interact with object types of interest (like VirtualService, Pool, etc) defined in pattern file
@@ -72,29 +81,42 @@ def pattern_match(config,pattern):
             # Extract config objects of interest (based on pattert_obj_type)
             for config_obj in config[pattern_obj_type]:
                 # Place holders for match and miss objects, to be filled later
-                match_obj[config_obj.name] = []
-                miss_obj[config_obj.name] = []
+                match_objs[config_obj.name] = {}
+                miss_objs[config_obj.name] = {}
+                miss_keys[config_obj.name] = []
                 # Extract pattern objects of interest and compare with config objects of interest
                 for pattern_obj in pattern[pattern_obj_type]:
-                    # Perform comparison only if all pattern dict keys are part of config object dict keys
+                    # verifying if keys are part of existing configuration, if not report and exclude missing pattern keys from compare function
                     if set(pattern_obj()._get_config().keys()).issubset(set(config_obj()._get_config().keys())):
+                        pattern_obj_keys = pattern_obj()._get_config().keys()
+                    else:
+                        miss_keys[config_obj.name] += set(pattern_obj()._get_config().keys()) - set(
+                            config_obj()._get_config().keys())
+                        pattern_obj_keys = set(pattern_obj()._get_config().keys()) - \
+                            set(miss_keys[config_obj.name])
+                    # perform compare if pattern keys exist
+                    if pattern_obj_keys:
                         # Extract pattern object keys for comparison
-                        for pattern_obj_key in pattern_obj()._get_config().keys():
+                        for pattern_obj_key in pattern_obj_keys:
                             # Extract value of pattern_obj and value of config_obj based on pattern_obj_key for comparison
                             if universal_cmp(getattr(pattern_obj, pattern_obj_key), getattr(config_obj, pattern_obj_key)):
-                                match_obj[config_obj.name] += pattern_obj_key, getattr(pattern_obj, pattern_obj_key)
+                                match_objs[config_obj.name][pattern_obj_key] = getattr(config_obj, pattern_obj_key)
                             else:
-                                miss_obj[config_obj.name] += pattern_obj_key, getattr(
-                                    config_obj, pattern_obj_key)
-                    #else if pattern key is missing from configuraion file
-                if match_obj[config_obj.name] == []:
-                    del match_obj[config_obj.name]
-                if miss_obj[config_obj.name] == []:
-                    del miss_obj[config_obj.name]
-            print("MISS")
-            pprint.pprint(miss_obj)
-            print("MATCH")
-            pprint.pprint(match_obj)
+                                miss_objs[config_obj.name][pattern_obj_key] = getattr(config_obj, pattern_obj_key)
+
+                miss_keys[config_obj.name] = set(miss_keys[config_obj.name])
+                if match_objs[config_obj.name] == {}:
+                    del match_objs[config_obj.name]
+                if miss_objs[config_obj.name] == {}:
+                    del miss_objs[config_obj.name]
+                if miss_keys[config_obj.name] == set([]):
+                    del miss_keys[config_obj.name]
+            print("MISS OPTIONS")
+            pprint.pprint(miss_keys)
+            print("MISS OBJECTS")
+            pprint.pprint(miss_objs)
+            print("MATCH OBJECTS")
+            pprint.pprint(match_objs)
 
 
 #print("GOLDEN TEMPLATE PROJECT")
@@ -109,3 +131,7 @@ print("PATTERN 4: no match")
 pattern_match(config_from_backup, pattern4_from_file)
 print("PATTERN 5: partial key and value match")
 pattern_match(config_from_backup, pattern5_from_file)
+print("PATTERN 6: full match on key, partial match on values, includes lists and dicts in lists")
+pattern_match(config_from_backup, pattern6_from_file)
+print("PATTERN 7: full match on key, partial match on values, includes lists and dicts in lists")
+pattern_match(config_from_backup, pattern7_from_file)

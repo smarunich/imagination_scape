@@ -1,9 +1,56 @@
 {
     "VirtualService": [
         {
-            "network_profile_ref": "/api/networkprofile/?tenant=admin&name=System-UDP-Per-PktNOMATCH",
+            "name": "vs_",
+            "network_profile_ref": "System",
+            "application_profile_ref": "System",
             "weight": 1,
-            "name": "vs_dns01a_192.168.1.16_53"
+            "content_rewrite": {
+                "rewritable_content_ref": "/api/stringgroup/?tenant=admin&name=System-Rewritable-Content-Types",
+                "response_rewrite_enabled": false,
+                "request_rewrite_enabled": false
+            },
+            "delay_fairness": false,
+            "static_dns_records": [
+                {
+                    "wildcard_match": true,
+                    "algorithm": "DNS_RECORD_RESPONSE_ROUND_ROBIN",
+                    "num_records_in_response": 0,
+                    "fqdn": [
+                        "sub01.gslb01.lab.sm"
+                    ],
+                    "delegated": true,
+                    "ns": [
+                        {
+                            "ip_address": {
+                                "type": "V4",
+                                "addr": "192.168.1.14"
+                            },
+                            "nsname": "gslb01a.lab.sm"
+                        }
+                    ],
+                    "type": "DNS_RECORD_NS"
+                },
+                {
+                    "wildcard_match": true,
+                    "algorithm": "DNS_RECORD_RESPONSE_ROUND_ROBIN",
+                    "num_records_in_response": 0,
+                    "fqdn": [
+                        "sub02.gslb01.lab.sm"
+                    ],
+                    "delegated": true,
+                    "ns": [
+                        {
+                            "ip_address": {
+                                "type": "V4",
+                                "addr": "192.168.1.17"
+                            },
+                            "nsname": "gslb02a.lab.sm"
+                        }
+                    ],
+                    "type": "DNS_RECORD_NS"
+                }
+            ]
         }
     ]
 }

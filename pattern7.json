@@ -1,0 +1,9 @@
+{
+    "ServiceEngineGroup": [
+        {
+            "name": "gslb",
+            "vcenter_folder": "avi",
+            "memory_per_se": 2048
+        }
+    ]
+}
