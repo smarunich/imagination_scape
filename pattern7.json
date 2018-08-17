@@ -1,9 +1,18 @@
 {
+    "VirtualService": [
+        {
+            "name": "vs_",
+            "network_profile_ref": "System",
+            "application_profile_ref": "Custom-HTTP",
+            "weight": 1
+        }
+    ],
     "ServiceEngineGroup": [
         {
             "name": "gslb",
             "vcenter_folder": "avi",
-            "memory_per_se": 2048
+            "memory_per_se": 2048,
+            "fake_option": true
         }
     ]
 }

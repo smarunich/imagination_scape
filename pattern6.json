@@ -7,7 +7,7 @@
             "weight": 1,
             "content_rewrite": {
                 "rewritable_content_ref": "/api/stringgroup/?tenant=admin&name=System-Rewritable-Content-Types",
-                "response_rewrite_enabled": false,
+                "response_rewrite_enabled": true,
                 "request_rewrite_enabled": false
             },
             "delay_fairness": false,

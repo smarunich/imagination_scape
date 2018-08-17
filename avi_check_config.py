@@ -8,12 +8,18 @@ SKIP_TYPE = [
 ]
 
 class avi_object(object):
-    def _get_config(self):
-        _get_config = {}
+    def __init__(self):
         attrs = filter(lambda x: x.startswith("_") == False, dir(self))
         for attr in attrs:
-            _get_config[attr] = getattr(self, attr)
-        return _get_config
+            self.__dict__[attr] = getattr(self, attr)
+    def __getitem__(self, key):
+        return self.__dict__[key]
+    def __repr__(self):
+        return repr(self.__dict__)
+    def _keys(self):
+        return self.__dict__.keys()
+    def _values(self):
+        return self.__dict__.values()
 
 def json2object(file_path):
     obj_dict = {}
@@ -42,6 +48,8 @@ def universal_cmp(a,b):
         if sorted(a) == sorted(b):
             return True
     elif type(a) == dict and type(b) == dict:
+        shared_items = {k: a[k] for k in a if k in b and a[k] != b[k]}
+        print "test",shared_items
         if sorted(a) == sorted(b):
             return True
     else:
@@ -71,53 +79,70 @@ pattern7_from_file = json2object('pattern7.json')
 #config.cmp(pattern)
 
 def pattern_match(config,pattern):
-    match_objs = {}
-    miss_objs = {}
-    miss_keys = {}
-    # Extract keys from pattern (keys will be VirtualService, Pool, etc) - patter_obj_type
+    report = {}
+    report_matching_values = {}
+    report_missing_keys = {}
+    report_missing_values = {}
+    matching_values = {}
+    missing_values = {}
+    missing_keys = {}
+    # Extract keys from pattern (keys will be VirtualService, Pool, etc) - pattern_obj_type
     for pattern_obj_type in pattern.keys():
         # Only interact with object types of interest (like VirtualService, Pool, etc) defined in pattern file
+        matching_values[pattern_obj_type] = {}
+        missing_values[pattern_obj_type] = {}
+        missing_keys[pattern_obj_type] = {}
         if pattern_obj_type in config.keys():
             # Extract config objects of interest (based on pattert_obj_type)
             for config_obj in config[pattern_obj_type]:
                 # Place holders for match and miss objects, to be filled later
-                match_objs[config_obj.name] = {}
-                miss_objs[config_obj.name] = {}
-                miss_keys[config_obj.name] = []
+                matching_values[pattern_obj_type][config_obj.name] = {}
+                missing_values[pattern_obj_type][config_obj.name] = {}
+                missing_keys[pattern_obj_type][config_obj.name] = []
                 # Extract pattern objects of interest and compare with config objects of interest
                 for pattern_obj in pattern[pattern_obj_type]:
                     # verifying if keys are part of existing configuration, if not report and exclude missing pattern keys from compare function
-                    if set(pattern_obj()._get_config().keys()).issubset(set(config_obj()._get_config().keys())):
-                        pattern_obj_keys = pattern_obj()._get_config().keys()
+                    if set(pattern_obj()._keys()).issubset(set(config_obj()._keys())):
+                        pattern_obj_keys = pattern_obj()._keys()
                     else:
-                        miss_keys[config_obj.name] += set(pattern_obj()._get_config().keys()) - set(
-                            config_obj()._get_config().keys())
-                        pattern_obj_keys = set(pattern_obj()._get_config().keys()) - \
-                            set(miss_keys[config_obj.name])
+                        missing_keys[pattern_obj_type][config_obj.name] += set(pattern_obj()._keys()) - set(
+                            config_obj()._keys())
+                        pattern_obj_keys = set(pattern_obj()._keys()) - \
+                            set(missing_keys[pattern_obj_type][config_obj.name])
                     # perform compare if pattern keys exist
                     if pattern_obj_keys:
                         # Extract pattern object keys for comparison
                         for pattern_obj_key in pattern_obj_keys:
                             # Extract value of pattern_obj and value of config_obj based on pattern_obj_key for comparison
                             if universal_cmp(getattr(pattern_obj, pattern_obj_key), getattr(config_obj, pattern_obj_key)):
-                                match_objs[config_obj.name][pattern_obj_key] = getattr(config_obj, pattern_obj_key)
+                                matching_values[pattern_obj_type][config_obj.name][pattern_obj_key] = getattr(
+                                    config_obj, pattern_obj_key)
                             else:
-                                miss_objs[config_obj.name][pattern_obj_key] = getattr(config_obj, pattern_obj_key)
-
-                miss_keys[config_obj.name] = set(miss_keys[config_obj.name])
-                if match_objs[config_obj.name] == {}:
-                    del match_objs[config_obj.name]
-                if miss_objs[config_obj.name] == {}:
-                    del miss_objs[config_obj.name]
-                if miss_keys[config_obj.name] == set([]):
-                    del miss_keys[config_obj.name]
-            print("MISS OPTIONS")
-            pprint.pprint(miss_keys)
-            print("MISS OBJECTS")
-            pprint.pprint(miss_objs)
-            print("MATCH OBJECTS")
-            pprint.pprint(match_objs)
-
+                                missing_values[pattern_obj_type][config_obj.name][pattern_obj_key] = getattr(
+                                    config_obj, pattern_obj_key)
+                missing_keys[pattern_obj_type][config_obj.name] = set(
+                    missing_keys[pattern_obj_type][config_obj.name])
+                # clean empty keys within dicts
+                if matching_values[pattern_obj_type][config_obj.name] == {}:
+                    del matching_values[pattern_obj_type][config_obj.name]
+                if missing_values[pattern_obj_type][config_obj.name] == {}:
+                    del missing_values[pattern_obj_type][config_obj.name]
+                if missing_keys[pattern_obj_type][config_obj.name] == set([]):
+                    del missing_keys[pattern_obj_type][config_obj.name]
+            print("MISSING OPTIONS")
+            pprint.pprint(pattern_obj_type)
+            pprint.pprint(missing_keys[pattern_obj_type])
+            report_missing_keys[pattern_obj_type] = missing_keys[pattern_obj_type]
+            print("MISSING OBJECTS")
+            pprint.pprint(pattern_obj_type)
+            pprint.pprint(missing_values[pattern_obj_type])
+            report_missing_values[pattern_obj_type] = missing_values[pattern_obj_type]
+            print("MATCHING OBJECTS")
+            pprint.pprint(pattern_obj_type)
+            pprint.pprint(matching_values[pattern_obj_type])
+            report_matching_values[pattern_obj_type] = matching_values[pattern_obj_type]
+    report = {"missing_keys": report_missing_keys, "missing_values": report_missing_values, "matching_values": report_matching_values }
+    #return report
 
 #print("GOLDEN TEMPLATE PROJECT")
 #pattern_match(config_from_backup, config_from_backup)
