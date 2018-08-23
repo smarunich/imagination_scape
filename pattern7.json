@@ -2,7 +2,7 @@
     "VirtualService": [
         {
             "name": "vs_",
-            "network_profile_ref": "System",
+            "network_profile_ref": "System-TCP",
             "application_profile_ref": "Custom-HTTP",
             "weight": 1
         }
@@ -13,6 +13,19 @@
             "vcenter_folder": "avi",
             "memory_per_se": 2048,
             "fake_option": true
+        }
+    ],
+    "Pool": [
+        {
+            "lb_algorithm": "LB_ALGORITHM_LEAST_CONNECTIONS"
+        }
+    ],
+    "ApplicationPersistenceProfile": [
+        {
+            "app_cookie_persistence_profile": {
+                "prst_hdr_name": "customhttpcookiename",
+                "timeout": 20
+            }
         }
     ]
 }
