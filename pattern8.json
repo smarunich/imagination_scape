@@ -1,0 +1,42 @@
+{
+    "VirtualService": [
+        {
+            "name": "vs_192.168.1.15",
+            "network_profile_ref": "System-TCP",
+            "application_profile_ref": "Custom-HTTP",
+            "weight": 1
+        }
+    ],
+    "ServiceEngineGroup": [
+        {
+            "name": "gslb",
+            "vcenter_folder": "avi",
+            "memory_per_se": 2048,
+            "fake_option": true
+        }
+    ],
+    "Pool": [
+        {
+            "rewrite_host_header_to_sni": false,
+            "lb_algorithm": "LB_ALGORITHM_LEAST_CONNECTIONS" }
+    ],
+    "ApplicationPersistenceProfile": [
+        {
+            "app_cookie_persistence_profile": {
+                "prst_hdr_name": "customhttpcookiename",
+                "timeout": 20
+            }
+        }
+    ],
+    "VrfContext": [
+        {
+            "name": "global"
+        }
+    ],
+    "SSLProfile": [
+        {
+            "ssl_session_timeout": 86400,
+             "accepted_ciphers": "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-ECDSA-AES256-SHA384:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA"
+        }
+    ]
+}

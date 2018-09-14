@@ -14,13 +14,32 @@ parser.add_argument('--config', action='store',
 parser.add_argument('--config-pattern', action='store',
                     dest='CONFIGPATTERN', help='Avi JSON configuration pattern')
 parser.add_argument('--output', action='store',
-                    dest='OUTPUTFOLDER', help='Avi JSON configuration pattern')
+                    dest='OUTPUTFOLDER', help='Output report folder')
 flags = parser.parse_args()
 
+
+def universal_cmp(a, b):
+    if type(a) == str and type(b) == str:
+        if re.search(a, b):
+            return True
+    if type(a) == unicode and type(b) == unicode:
+        if re.search(a.decode('utf-8'), b.decode('utf-8')):
+            return True
+    elif type(a) == int and type(b) == int:
+        if re.search(str(a), str(b)):
+            return True
+    else:
+        if a == b:
+            return True
+        else:
+            return diff(a, b, syntax='compact')
 
 class avi_config():
     _SKIP_TYPE = [
         "META"
+    ]
+    _SKIP_KEY = [
+        "name"
     ]
     def __init__(self,file_path, file_type, obj_class):
         self._json2object(file_path, file_type, obj_class)
@@ -55,10 +74,77 @@ class avi_config():
                             if ref_config_obj().name == ref['name']:
                                 related_config[ref_config_obj(
                                 )._lowercase_to_uppercase_config_obj_name[ref['_config_obj_type']]] = [ref_config_obj()]
-        print related_config
+        #pprint.pprint(related_config)
         #print json.dumps(related_config, indent=2, sort_keys=True)
         return related_config
 
+    def _pattern_match(self, pattern):
+        matching_values = {}
+        mismatching_values = {}
+        missing_options = {}
+        report_matching_values = {}
+        report_missing_options = {}
+        report_mismatching_values = {}
+        report = {}
+        # Extract keys from pattern (keys will be VirtualService, Pool, etc) - pattern_obj_type
+        for pattern_obj_type in pattern._keys():
+            # Only interact with object types of interest (like VirtualService, Pool, etc) defined in pattern file
+            matching_values[pattern_obj_type] = {}
+            mismatching_values[pattern_obj_type] = {}
+            missing_options[pattern_obj_type] = {}
+            # Extract config objects of interest (based on pattert_obj_type)
+            if pattern_obj_type in self._keys():
+                for config_obj in self[pattern_obj_type]:
+                    # Place holders for match and miss objects, to be filled later
+                    matching_values[pattern_obj_type][config_obj.name] = {}
+                    mismatching_values[pattern_obj_type][config_obj.name] = {}
+                    missing_options[pattern_obj_type][config_obj.name] = []
+                    # Extract pattern objects of interest and compare with config objects of interest
+                    for pattern_obj in pattern[pattern_obj_type]:
+                        try:
+                            pattern_obj_name = pattern_obj.name
+                        except:
+                            pattern_obj_name = [config_obj.name]
+                        if config_obj.name in pattern_obj_name:
+                            # verifying if keys are part of existing configuration, if not report and exclude missing pattern keys from compare function
+                            if set(pattern_obj()._keys()).issubset(set(config_obj()._keys())):
+                                pattern_obj_keys = pattern_obj()._keys()
+                            else:
+                                missing_options[pattern_obj_type][config_obj.name] += set(pattern_obj()._keys()) - set(
+                                    config_obj()._keys())
+                                pattern_obj_keys = set(pattern_obj()._keys()) - \
+                                    set(missing_options[pattern_obj_type]
+                                        [config_obj.name])
+                            # perform compare if pattern keys exist
+                            if pattern_obj_keys:
+                                # Extract pattern object keys for comparison
+                                for pattern_obj_key in pattern_obj_keys:
+                                    if pattern_obj_key not in self._SKIP_KEY:
+                                        # Extract value of pattern_obj and value of config_obj based on pattern_obj_key for comparison
+                                        if universal_cmp(getattr(pattern_obj, pattern_obj_key), getattr(config_obj, pattern_obj_key)) == True:
+                                            matching_values[pattern_obj_type][config_obj.name][pattern_obj_key] = getattr(
+                                                config_obj, pattern_obj_key)
+                                        elif universal_cmp(getattr(pattern_obj, pattern_obj_key), getattr(config_obj, pattern_obj_key)):
+                                            mismatching_values[pattern_obj_type][config_obj.name][pattern_obj_key] = universal_cmp(
+                                                getattr(pattern_obj, pattern_obj_key), getattr(config_obj, pattern_obj_key))
+                                        else:
+                                            mismatching_values[pattern_obj_type][config_obj.name][pattern_obj_key] = getattr(
+                                                config_obj, pattern_obj_key)
+                    missing_options[pattern_obj_type][config_obj.name] = list(set(
+                        missing_options[pattern_obj_type][config_obj.name]))
+                    # clean empty keys within dicts
+                    if matching_values[pattern_obj_type][config_obj.name] == {}:
+                        del matching_values[pattern_obj_type][config_obj.name]
+                    if mismatching_values[pattern_obj_type][config_obj.name] == {}:
+                        del mismatching_values[pattern_obj_type][config_obj.name]
+                    if missing_options[pattern_obj_type][config_obj.name] == []:
+                        del missing_options[pattern_obj_type][config_obj.name]
+                report_missing_options[pattern_obj_type] = missing_options[pattern_obj_type]
+                report_mismatching_values[pattern_obj_type] = mismatching_values[pattern_obj_type]
+                report_matching_values[pattern_obj_type] = matching_values[pattern_obj_type]
+        report = {"missing_options": report_missing_options,
+                "mismatching_values": report_mismatching_values, "matching_values": report_matching_values}
+        return report
     def __getitem__(self, key):
         return self.__dict__[key]
     def __repr__(self):
@@ -114,96 +200,6 @@ class avi_object(object):
                 refs[key] = self.__dict__[key]
         return refs
 
-
-def universal_cmp(a,b):
-    if type(a) == str and type(b) == str:
-        if re.search(a,b):
-            return True
-    if type(a) == unicode and type(b) == unicode:
-        if re.search(a.decode('utf-8'),b.decode('utf-8')):
-            return True
-    elif type(a) == int and type(b) == int:
-        if re.search(str(a), str(b)):
-            return True
-    elif type(a) == list and type(b) ==list:
-        if a == b:
-            return True
-        else:
-            return diff(a, b, syntax='compact')
-    elif type(a) == dict and type(b) == dict:
-        if a == b:
-            return True
-        else:
-            return diff(a, b, syntax='compact')
-    else:
-        if a == b:
-            return True
-        else:
-            return diff(a, b, syntax='compact')
-
-# __cmp__, config becomes self
-#config.cmp(pattern)
-
-def pattern_match(config,pattern):
-    matching_values = {}
-    mismatching_values = {}
-    missing_options = {}
-    report_matching_values = {}
-    report_missing_options = {}
-    report_mismatching_values = {}
-    report = {}
-    # Extract keys from pattern (keys will be VirtualService, Pool, etc) - pattern_obj_type
-    for pattern_obj_type in pattern._keys():
-        # Only interact with object types of interest (like VirtualService, Pool, etc) defined in pattern file
-        matching_values[pattern_obj_type] = {}
-        mismatching_values[pattern_obj_type] = {}
-        missing_options[pattern_obj_type] = {}
-        if pattern_obj_type in config._keys():
-            # Extract config objects of interest (based on pattert_obj_type)
-            for config_obj in config[pattern_obj_type]:
-                # Place holders for match and miss objects, to be filled later
-                matching_values[pattern_obj_type][config_obj.name] = {}
-                mismatching_values[pattern_obj_type][config_obj.name] = {}
-                missing_options[pattern_obj_type][config_obj.name] = []
-                # Extract pattern objects of interest and compare with config objects of interest
-                for pattern_obj in pattern[pattern_obj_type]:
-                    # verifying if keys are part of existing configuration, if not report and exclude missing pattern keys from compare function
-                    if set(pattern_obj()._keys()).issubset(set(config_obj()._keys())):
-                        pattern_obj_keys = pattern_obj()._keys()
-                    else:
-                        missing_options[pattern_obj_type][config_obj.name] += set(pattern_obj()._keys()) - set(
-                            config_obj()._keys())
-                        pattern_obj_keys = set(pattern_obj()._keys()) - \
-                            set(missing_options[pattern_obj_type][config_obj.name])
-                    # perform compare if pattern keys exist
-                    if pattern_obj_keys:
-                        # Extract pattern object keys for comparison
-                        for pattern_obj_key in pattern_obj_keys:
-                            # Extract value of pattern_obj and value of config_obj based on pattern_obj_key for comparison
-                            if universal_cmp(getattr(pattern_obj, pattern_obj_key), getattr(config_obj, pattern_obj_key)) == True:
-                                matching_values[pattern_obj_type][config_obj.name][pattern_obj_key] = getattr(
-                                    config_obj, pattern_obj_key)
-                            elif universal_cmp(getattr(pattern_obj, pattern_obj_key), getattr(config_obj, pattern_obj_key)) :
-                                mismatching_values[pattern_obj_type][config_obj.name][pattern_obj_key] = universal_cmp(
-                                    getattr(pattern_obj, pattern_obj_key), getattr(config_obj, pattern_obj_key))
-                            else:
-                                mismatching_values[pattern_obj_type][config_obj.name][pattern_obj_key] = getattr(
-                                    config_obj, pattern_obj_key)
-                missing_options[pattern_obj_type][config_obj.name] = list(set(
-                    missing_options[pattern_obj_type][config_obj.name]))
-                # clean empty keys within dicts
-                if matching_values[pattern_obj_type][config_obj.name] == {}:
-                    del matching_values[pattern_obj_type][config_obj.name]
-                if mismatching_values[pattern_obj_type][config_obj.name] == {}:
-                    del mismatching_values[pattern_obj_type][config_obj.name]
-                if missing_options[pattern_obj_type][config_obj.name] == []:
-                    del missing_options[pattern_obj_type][config_obj.name]
-            report_missing_options[pattern_obj_type] = missing_options[pattern_obj_type]
-            report_mismatching_values[pattern_obj_type] = mismatching_values[pattern_obj_type]
-            report_matching_values[pattern_obj_type] = matching_values[pattern_obj_type]
-    report = {"missing_options": report_missing_options, "mismatching_values": report_mismatching_values, "matching_values": report_matching_values }
-    return report
-
 if __name__ == "__main__":
     if flags.CONFIG:
         if flags.CONFIGPATTERN:
@@ -211,17 +207,16 @@ if __name__ == "__main__":
                 flags.CONFIG, "config", avi_object)
             avi_config_pattern_from_file = avi_config(
                 flags.CONFIGPATTERN, "pattern", avi_object)
-            pattern_match_report = pattern_match(avi_config_from_file, avi_config_pattern_from_file)
+            pattern_match_report = avi_config_from_file._pattern_match(avi_config_pattern_from_file)
+            avi_config_from_file._list_related_objects(
+                'VirtualService', 'vs_192.168.3.11')
         if flags.OUTPUTFOLDER:
             for key in pattern_match_report:
-                try:
-                    with open(flags.CONFIG+'_'+key, "w") as report_file:
-                        json.dump(
-                            pattern_match_report[key], report_file, sort_keys=True, indent=4)
-                except:
-                    with open(flags.CONFIG+'_'+key, "w") as report_file:
-                        json.dump(
-                            str(pattern_match_report[key]), report_file, sort_keys=True, indent=4)
+                file_path = flags.OUTPUTFOLDER+'/'+flags.CONFIG+'_'+key
+                with open(file_path, "w") as report_file:
+                    json.dump(
+                        pattern_match_report[key], report_file, sort_keys=True, indent=4)
+
 
 '''
     # get all configuration related to the object
