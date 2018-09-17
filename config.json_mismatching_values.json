@@ -1,48 +1,9 @@
 {
+    "ApplicationPersistenceProfile": {}, 
+    "Pool": {}, 
+    "SSLProfile": {}, 
+    "ServiceEngineGroup": {}, 
     "VirtualService": {
         "vs_192.168.1.15": {
-            "content_rewrite": {
-                "response_rewrite_enabled": false
-            }
-        }, 
-        "vs_192.168.3.11": {
-            "content_rewrite": {
-                "response_rewrite_enabled": false
-            }
-        }, 
-        "vs_dns01a_192.168.1.16_53": {
-            "content_rewrite": {
-                "response_rewrite_enabled": false
-            }, 
-            "static_dns_records": {
-                "0": {
-                    "fqdn": [
-                        "sub01.gslb01.lab.sm"
-                    ], 
-                    "ns": {
-                        "0": {
-                            "ip_address": {
-                                "type": "V4"
-                            }
-                        }
-                    }
-                }, 
-                "1": {
-                    "fqdn": [
-                        "sub02.gslb01.lab.sm"
-                    ]
-                }
-            }
-        }, 
-        "vs_gslb01a_192.168.1.14_53": {
-            "content_rewrite": {
-                "response_rewrite_enabled": false
-            }
-        }, 
-        "vs_gslb02a_192.168.1.17_53": {
-            "content_rewrite": {
-                "response_rewrite_enabled": false
-            }
-        }
-    }
-}
+            "application_profile_ref": {
+                

@@ -1,0 +1,248 @@
+{
+    "VirtualService": [
+        {
+            "_avi_obj_type": "virtualservice", 
+            "active_standby_se_tag": "ACTIVE_STANDBY_SE_1", 
+            "analytics_policy": {
+                "client_insights": "NO_INSIGHTS", 
+                "enabled": true, 
+                "full_client_logs": {
+                    "all_headers": false, 
+                    "duration": 0, 
+                    "enabled": true, 
+                    "throttle": 10
+                }, 
+                "metrics_realtime_update": {
+                    "duration": 0, 
+                    "enabled": true
+                }, 
+                "significant_log_throttle": 10, 
+                "udf_log_throttle": 10
+            }, 
+            "analytics_profile_ref": {
+                "_config_obj_type": "analyticsprofile", 
+                "name": "System-Analytics-Profile", 
+                "tenant": "admin", 
+                "url": "/api/analyticsprofile/?tenant=admin&name=System-Analytics-Profile"
+            }, 
+            "application_profile_ref": {
+                "_config_obj_type": "applicationprofile", 
+                "name": "System-DNS", 
+                "tenant": "admin", 
+                "url": "/api/applicationprofile/?tenant=admin&name=System-DNS"
+            }, 
+            "bulk_sync_kvcache": false, 
+            "close_client_conn_on_config_update": false, 
+            "cloud_ref": {
+                "_config_obj_type": "cloud", 
+                "name": "vmc", 
+                "tenant": "admin", 
+                "url": "/api/cloud/?tenant=admin&name=vmc"
+            }, 
+            "cloud_type": "CLOUD_VCENTER", 
+            "content_rewrite": {
+                "request_rewrite_enabled": false, 
+                "response_rewrite_enabled": false, 
+                "rewritable_content_ref": "/api/stringgroup/?tenant=admin&name=System-Rewritable-Content-Types"
+            }, 
+            "delay_fairness": false, 
+            "enable_autogw": true, 
+            "enabled": true, 
+            "extension": {
+                "redis_db": 13, 
+                "redis_ip": "127.0.0.1", 
+                "redis_port": 5026, 
+                "tls_ticket_key": [
+                    {
+                        "aes_key": "Ak4Ifr1Rk9jGMR4jZl6U0A==", 
+                        "hmac_key": "aGz6mol+3v//Blqan+mkug==", 
+                        "name": "38fa0ada-0ee8-4191-ac37-98c68b54aa5c"
+                    }, 
+                    {
+                        "aes_key": "+3Jp9t2t/Bi5Gb+2kiaK4Q==", 
+                        "hmac_key": "qP2Stf370qFMyUbK8KMhgg==", 
+                        "name": "b3f4ca4e-34c7-4afd-9f2f-ee2a6303c5c5"
+                    }, 
+                    {
+                        "aes_key": "sdlIiSwNM77qjMhlnf6f+A==", 
+                        "hmac_key": "tVHVDDFoIHSOiwqy/V2QxA==", 
+                        "name": "c66fc0c6-eba2-4562-8438-e9a57dc3fb5c"
+                    }
+                ], 
+                "version": 22601, 
+                "vip_runtime": [
+                    {
+                        "first_se_assigned_time": {
+                            "secs": 1533435012, 
+                            "usecs": 397096
+                        }, 
+                        "num_additional_se": 0, 
+                        "requested_resource": {
+                            "num_se": 2, 
+                            "num_standby_se": 0
+                        }, 
+                        "se_list": [
+                            {
+                                "admin_down_requested": false, 
+                                "at_curr_ver": true, 
+                                "attach_ip_status": "Programming Network reachability to the Virtual Service IP in the Cloud", 
+                                "attach_ip_success": true, 
+                                "delete_in_progress": false, 
+                                "download_selist_only": false, 
+                                "geo_download": false, 
+                                "geodb_download": false, 
+                                "gslb_download": true, 
+                                "is_connected": true, 
+                                "is_portchannel": false, 
+                                "is_primary": true, 
+                                "is_standby": false, 
+                                "memory": 2000, 
+                                "pending_download": false, 
+                                "scalein_in_progress": false, 
+                                "se_ref": "se-0050569d0d37", 
+                                "sec_idx": 1, 
+                                "vcpus": 1, 
+                                "version": "17.2.12(9128) 2018-07-20 02:01:24 UTC", 
+                                "vip_intf_list": [
+                                    {
+                                        "is_portchannel": false, 
+                                        "vip_intf_ip": {
+                                            "addr": "192.168.5.111", 
+                                            "type": "V4"
+                                        }, 
+                                        "vip_intf_mac": "00:50:56:9d:0c:fc", 
+                                        "vlan_id": 0
+                                    }
+                                ], 
+                                "vip_intf_mac": "00:50:56:9d:0c:fc", 
+                                "vip_subnet_mask": 32, 
+                                "vlan_id": 0, 
+                                "vnic": [
+                                    {
+                                        "mac": "00:50:56:9d:0c:fc", 
+                                        "type": "VNIC_TYPE_FE"
+                                    }, 
+                                    {
+                                        "mac": "00:50:56:9d:0c:fc", 
+                                        "type": "VNIC_TYPE_BE"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "admin_down_requested": false, 
+                                "at_curr_ver": true, 
+                                "attach_ip_status": "Programming Network reachability to the Virtual Service IP in the Cloud", 
+                                "attach_ip_success": true, 
+                                "delete_in_progress": false, 
+                                "download_selist_only": false, 
+                                "geo_download": false, 
+                                "geodb_download": false, 
+                                "gslb_download": true, 
+                                "is_connected": true, 
+                                "is_portchannel": false, 
+                                "is_primary": false, 
+                                "is_standby": false, 
+                                "memory": 2000, 
+                                "pending_download": false, 
+                                "scalein_in_progress": false, 
+                                "se_ref": "se-0050569d6e3c", 
+                                "sec_idx": 1, 
+                                "vcpus": 1, 
+                                "version": "17.2.12(9128) 2018-07-20 02:01:24 UTC", 
+                                "vip_intf_list": [
+                                    {
+                                        "is_portchannel": false, 
+                                        "vip_intf_ip": {
+                                            "addr": "192.168.5.99", 
+                                            "type": "V4"
+                                        }, 
+                                        "vip_intf_mac": "00:50:56:9d:0d:ab", 
+                                        "vlan_id": 0
+                                    }
+                                ], 
+                                "vip_intf_mac": "00:50:56:9d:0d:ab", 
+                                "vip_subnet_mask": 32, 
+                                "vlan_id": 0, 
+                                "vnic": [
+                                    {
+                                        "mac": "00:50:56:9d:0d:ab", 
+                                        "type": "VNIC_TYPE_FE"
+                                    }, 
+                                    {
+                                        "mac": "00:50:56:9d:0d:ab", 
+                                        "type": "VNIC_TYPE_BE"
+                                    }
+                                ]
+                            }
+                        ], 
+                        "vip_id": "1"
+                    }
+                ]
+            }, 
+            "flow_dist": "LOAD_AWARE", 
+            "flow_label_type": "NO_LABEL", 
+            "ign_pool_net_reach": false, 
+            "limit_doser": false, 
+            "max_cps_per_client": 0, 
+            "name": "vs_gslb01a_192.168.1.14_53", 
+            "network_profile_ref": {
+                "_config_obj_type": "networkprofile", 
+                "name": "System-UDP-Per-Pkt", 
+                "tenant": "admin", 
+                "url": "/api/networkprofile/?tenant=admin&name=System-UDP-Per-Pkt"
+            }, 
+            "network_security_policy_ref": {
+                "_config_obj_type": "networksecuritypolicy", 
+                "name": "vs-vs_gslb01a_192.168.1.14_53-vmc-ns", 
+                "tenant": "admin", 
+                "url": "/api/networksecuritypolicy/?tenant=admin&name=vs-vs_gslb01a_192.168.1.14_53-vmc-ns"
+            }, 
+            "remove_listening_port_on_vs_down": false, 
+            "scaleout_ecmp": false, 
+            "se_group_ref": {
+                "_config_obj_type": "serviceenginegroup", 
+                "cloud": "vmc", 
+                "name": "gslb01a", 
+                "tenant": "admin", 
+                "url": "/api/serviceenginegroup/?tenant=admin&name=gslb01a&cloud=vmc"
+            }, 
+            "services": [
+                {
+                    "enable_ssl": false, 
+                    "port": 53, 
+                    "port_range_end": 53
+                }
+            ], 
+            "sideband_profile": {
+                "sideband_max_request_body_size": 1024
+            }, 
+            "ssl_sess_cache_avg_size": 1024, 
+            "tenant_ref": {
+                "_config_obj_type": "tenant", 
+                "name": "admin", 
+                "url": "/api/tenant/?name=admin"
+            }, 
+            "traffic_enabled": true, 
+            "type": "VS_TYPE_NORMAL", 
+            "url": "/api/virtualservice/virtualservice-d438f872-ced8-474f-b339-4204d1f403be", 
+            "use_bridge_ip_as_vip": false, 
+            "use_vip_as_snat": false, 
+            "uuid": "virtualservice-d438f872-ced8-474f-b339-4204d1f403be", 
+            "vrf_context_ref": {
+                "_config_obj_type": "vrfcontext", 
+                "cloud": "vmc", 
+                "name": "global", 
+                "tenant": "admin", 
+                "url": "/api/vrfcontext/?tenant=admin&name=global&cloud=vmc"
+            }, 
+            "vsvip_ref": {
+                "_config_obj_type": "vsvip", 
+                "cloud": "vmc", 
+                "name": "vsvip-vs_gslb01a_192.168.1.14_53-vmc", 
+                "tenant": "admin", 
+                "url": "/api/vsvip/?tenant=admin&name=vsvip-vs_gslb01a_192.168.1.14_53-vmc&cloud=vmc"
+            }, 
+            "weight": 1
+        }
+    ]
+}

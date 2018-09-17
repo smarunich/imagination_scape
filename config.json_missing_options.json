@@ -1,16 +1,12 @@
 {
-    "VirtualService": {
-        "vs_192.168.1.15": [
-            "static_dns_records"
-        ], 
-        "vs_192.168.3.11": [
-            "static_dns_records"
-        ], 
-        "vs_gslb01a_192.168.1.14_53": [
-            "static_dns_records"
-        ], 
-        "vs_gslb02a_192.168.1.17_53": [
-            "static_dns_records"
+    "ApplicationPersistenceProfile": {
+        "System-Persistence-Client-IP": [
+            "app_cookie_persistence_profile"
         ]
-    }
+    }, 
+    "Pool": {}, 
+    "SSLProfile": {}, 
+    "ServiceEngineGroup": {}, 
+    "VirtualService": {}, 
+    "VrfContext": {}
 }

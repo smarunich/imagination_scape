@@ -80,25 +80,6 @@
             "uuid": "analyticsprofile-aa642be4-f05a-41c8-94ca-4efd2ca07fce"
         }
     ], 
-    "ApplicationPersistenceProfile": [
-        {
-            "_avi_obj_type": "applicationpersistenceprofile", 
-            "ip_persistence_profile": {
-                "ip_persistent_timeout": 5
-            }, 
-            "is_federated": false, 
-            "name": "System-Persistence-Client-IP", 
-            "persistence_type": "PERSISTENCE_TYPE_CLIENT_IP_ADDRESS", 
-            "server_hm_down_recovery": "HM_DOWN_PICK_NEW_SERVER", 
-            "tenant_ref": {
-                "_config_obj_type": "tenant", 
-                "name": "admin", 
-                "url": "/api/tenant/?name=admin"
-            }, 
-            "url": "/api/applicationpersistenceprofile/applicationpersistenceprofile-2ee5c282-c31c-41e7-a93a-27291766707c", 
-            "uuid": "applicationpersistenceprofile-2ee5c282-c31c-41e7-a93a-27291766707c"
-        }
-    ], 
     "ApplicationProfile": [
         {
             "_avi_obj_type": "applicationprofile", 
@@ -205,322 +186,6 @@
                 "vcenter_url": "labvc01"
             }, 
             "vtype": "CLOUD_VCENTER"
-        }, 
-        {
-            "_avi_obj_type": "cloud", 
-            "apic_mode": false, 
-            "dhcp_enabled": false, 
-            "enable_vip_static_routes": false, 
-            "license_tier": "ENTERPRISE_18", 
-            "license_type": "LIC_CORES", 
-            "mtu": 1500, 
-            "name": "Default-Cloud", 
-            "prefer_static_routes": false, 
-            "state_based_dns_registration": true, 
-            "tenant_ref": {
-                "_config_obj_type": "tenant", 
-                "name": "admin", 
-                "url": "/api/tenant/?name=admin"
-            }, 
-            "url": "/api/cloud/cloud-8e719cf1-9b69-4203-b53b-931170f348fa", 
-            "uuid": "cloud-8e719cf1-9b69-4203-b53b-931170f348fa", 
-            "vtype": "CLOUD_NONE"
-        }
-    ], 
-    "HealthMonitor": [
-        {
-            "_avi_obj_type": "healthmonitor", 
-            "failed_checks": 2, 
-            "is_federated": true, 
-            "monitor_port": 80, 
-            "name": "System-GSLB-TCP", 
-            "receive_timeout": 4, 
-            "send_interval": 10, 
-            "successful_checks": 2, 
-            "tenant_ref": {
-                "_config_obj_type": "tenant", 
-                "name": "admin", 
-                "url": "/api/tenant/?name=admin"
-            }, 
-            "type": "HEALTH_MONITOR_TCP", 
-            "url": "/api/healthmonitor/healthmonitor-4b50c18f-f41b-4b79-8544-c58dd6c90502", 
-            "uuid": "healthmonitor-4b50c18f-f41b-4b79-8544-c58dd6c90502"
-        }, 
-        {
-            "_avi_obj_type": "healthmonitor", 
-            "failed_checks": 2, 
-            "is_federated": false, 
-            "name": "System-TCP", 
-            "receive_timeout": 4, 
-            "send_interval": 10, 
-            "successful_checks": 2, 
-            "tenant_ref": {
-                "_config_obj_type": "tenant", 
-                "name": "admin", 
-                "url": "/api/tenant/?name=admin"
-            }, 
-            "type": "HEALTH_MONITOR_TCP", 
-            "url": "/api/healthmonitor/healthmonitor-efdc6bf6-3d6a-48fc-8aed-e8ceb8dcda1f", 
-            "uuid": "healthmonitor-efdc6bf6-3d6a-48fc-8aed-e8ceb8dcda1f"
-        }, 
-        {
-            "_avi_obj_type": "healthmonitor", 
-            "external_monitor": {
-                "command_code": "#!/usr/bin/perl -w\nmy $ip= $ARGV[0];\nmy $port = $ARGV[1];\nmy $curl_out = `curl -v \"$ip\":\"$port\" 2>&1`;\nif (index($curl_out, \"200 OK\") != -1) {\n    print \"Server is up\n\";\n}\n"
-            }, 
-            "failed_checks": 2, 
-            "is_federated": false, 
-            "name": "System-Xternal-Perl", 
-            "receive_timeout": 10, 
-            "send_interval": 30, 
-            "successful_checks": 2, 
-            "tenant_ref": {
-                "_config_obj_type": "tenant", 
-                "name": "admin", 
-                "url": "/api/tenant/?name=admin"
-            }, 
-            "type": "HEALTH_MONITOR_EXTERNAL", 
-            "url": "/api/healthmonitor/healthmonitor-958cc195-d070-4a1e-82e6-e24b12ce5bfb", 
-            "uuid": "healthmonitor-958cc195-d070-4a1e-82e6-e24b12ce5bfb"
-        }, 
-        {
-            "_avi_obj_type": "healthmonitor", 
-            "failed_checks": 3, 
-            "https_monitor": {
-                "exact_http_request": false, 
-                "http_request": "HEAD / HTTP/1.0", 
-                "http_response_code": [
-                    "HTTP_2XX", 
-                    "HTTP_3XX"
-                ]
-            }, 
-            "is_federated": false, 
-            "name": "System-HTTPS", 
-            "receive_timeout": 4, 
-            "send_interval": 10, 
-            "successful_checks": 3, 
-            "tenant_ref": {
-                "_config_obj_type": "tenant", 
-                "name": "admin", 
-                "url": "/api/tenant/?name=admin"
-            }, 
-            "type": "HEALTH_MONITOR_HTTPS", 
-            "url": "/api/healthmonitor/healthmonitor-74df976c-f5fc-413b-af97-69c787297262", 
-            "uuid": "healthmonitor-74df976c-f5fc-413b-af97-69c787297262"
-        }, 
-        {
-            "_avi_obj_type": "healthmonitor", 
-            "failed_checks": 2, 
-            "is_federated": true, 
-            "monitor_port": 443, 
-            "name": "System-GSLB-UDP", 
-            "receive_timeout": 2, 
-            "send_interval": 4, 
-            "successful_checks": 2, 
-            "tenant_ref": {
-                "_config_obj_type": "tenant", 
-                "name": "admin", 
-                "url": "/api/tenant/?name=admin"
-            }, 
-            "type": "HEALTH_MONITOR_UDP", 
-            "udp_monitor": {
-                "udp_request": "EnterYourRequestDataHere"
-            }, 
-            "url": "/api/healthmonitor/healthmonitor-58d2688b-c3f1-403c-88b3-2caf7ce86f9f", 
-            "uuid": "healthmonitor-58d2688b-c3f1-403c-88b3-2caf7ce86f9f"
-        }, 
-        {
-            "_avi_obj_type": "healthmonitor", 
-            "failed_checks": 2, 
-            "is_federated": true, 
-            "name": "System-GSLB-Ping", 
-            "receive_timeout": 4, 
-            "send_interval": 10, 
-            "successful_checks": 2, 
-            "tenant_ref": {
-                "_config_obj_type": "tenant", 
-                "name": "admin", 
-                "url": "/api/tenant/?name=admin"
-            }, 
-            "type": "HEALTH_MONITOR_PING", 
-            "url": "/api/healthmonitor/healthmonitor-55f5ae15-7118-4d07-b140-5724501d2d62", 
-            "uuid": "healthmonitor-55f5ae15-7118-4d07-b140-5724501d2d62"
-        }, 
-        {
-            "_avi_obj_type": "healthmonitor", 
-            "failed_checks": 3, 
-            "http_monitor": {
-                "exact_http_request": false, 
-                "http_request": "HEAD / HTTP/1.0", 
-                "http_response_code": [
-                    "HTTP_2XX", 
-                    "HTTP_3XX"
-                ]
-            }, 
-            "is_federated": true, 
-            "monitor_port": 80, 
-            "name": "System-GSLB-HTTP", 
-            "receive_timeout": 4, 
-            "send_interval": 10, 
-            "successful_checks": 3, 
-            "tenant_ref": {
-                "_config_obj_type": "tenant", 
-                "name": "admin", 
-                "url": "/api/tenant/?name=admin"
-            }, 
-            "type": "HEALTH_MONITOR_HTTP", 
-            "url": "/api/healthmonitor/healthmonitor-b2c5187e-86e3-4a6d-a5f7-27a19c5fcd59", 
-            "uuid": "healthmonitor-b2c5187e-86e3-4a6d-a5f7-27a19c5fcd59"
-        }, 
-        {
-            "_avi_obj_type": "healthmonitor", 
-            "failed_checks": 2, 
-            "is_federated": false, 
-            "name": "System-UDP", 
-            "receive_timeout": 2, 
-            "send_interval": 4, 
-            "successful_checks": 2, 
-            "tenant_ref": {
-                "_config_obj_type": "tenant", 
-                "name": "admin", 
-                "url": "/api/tenant/?name=admin"
-            }, 
-            "type": "HEALTH_MONITOR_UDP", 
-            "udp_monitor": {
-                "udp_request": "EnterYourRequestDataHere"
-            }, 
-            "url": "/api/healthmonitor/healthmonitor-6467b041-8c54-4183-a3db-07ac25ffcf76", 
-            "uuid": "healthmonitor-6467b041-8c54-4183-a3db-07ac25ffcf76"
-        }, 
-        {
-            "_avi_obj_type": "healthmonitor", 
-            "external_monitor": {
-                "command_code": "#!/usr/bin/python\nimport sys\nimport httplib\nconn = httplib.HTTPConnection(sys.argv[1]+':'+sys.argv[2])\nconn.request(\"HEAD\", \"/index.html\")\nr1 = conn.getresponse()\nif r1.status == 200:\n    print r1.status, r1.reason\n"
-            }, 
-            "failed_checks": 2, 
-            "is_federated": false, 
-            "name": "System-Xternal-Python", 
-            "receive_timeout": 10, 
-            "send_interval": 30, 
-            "successful_checks": 2, 
-            "tenant_ref": {
-                "_config_obj_type": "tenant", 
-                "name": "admin", 
-                "url": "/api/tenant/?name=admin"
-            }, 
-            "type": "HEALTH_MONITOR_EXTERNAL", 
-            "url": "/api/healthmonitor/healthmonitor-d68f9daa-c8c5-4249-bc3a-9b6a90c2c905", 
-            "uuid": "healthmonitor-d68f9daa-c8c5-4249-bc3a-9b6a90c2c905"
-        }, 
-        {
-            "_avi_obj_type": "healthmonitor", 
-            "failed_checks": 2, 
-            "is_federated": false, 
-            "name": "System-Ping", 
-            "receive_timeout": 4, 
-            "send_interval": 10, 
-            "successful_checks": 2, 
-            "tenant_ref": {
-                "_config_obj_type": "tenant", 
-                "name": "admin", 
-                "url": "/api/tenant/?name=admin"
-            }, 
-            "type": "HEALTH_MONITOR_PING", 
-            "url": "/api/healthmonitor/healthmonitor-ab57bef3-f2cf-4fa5-a033-d61a35d85672", 
-            "uuid": "healthmonitor-ab57bef3-f2cf-4fa5-a033-d61a35d85672"
-        }, 
-        {
-            "_avi_obj_type": "healthmonitor", 
-            "failed_checks": 3, 
-            "https_monitor": {
-                "exact_http_request": false, 
-                "http_request": "HEAD / HTTP/1.0", 
-                "http_response_code": [
-                    "HTTP_2XX", 
-                    "HTTP_3XX"
-                ]
-            }, 
-            "is_federated": true, 
-            "monitor_port": 443, 
-            "name": "System-GSLB-HTTPS", 
-            "receive_timeout": 4, 
-            "send_interval": 10, 
-            "successful_checks": 3, 
-            "tenant_ref": {
-                "_config_obj_type": "tenant", 
-                "name": "admin", 
-                "url": "/api/tenant/?name=admin"
-            }, 
-            "type": "HEALTH_MONITOR_HTTPS", 
-            "url": "/api/healthmonitor/healthmonitor-56a645ed-49be-4f09-a696-dae8b1327c4a", 
-            "uuid": "healthmonitor-56a645ed-49be-4f09-a696-dae8b1327c4a"
-        }, 
-        {
-            "_avi_obj_type": "healthmonitor", 
-            "external_monitor": {
-                "command_code": "#!/bin/bash\n#curl -v $IP:$PORT >/run/hmuser/$HM_NAME.$IP.$PORT.out\ncurl -v $IP:$PORT"
-            }, 
-            "failed_checks": 2, 
-            "is_federated": false, 
-            "name": "System-Xternal-Shell", 
-            "receive_timeout": 10, 
-            "send_interval": 30, 
-            "successful_checks": 2, 
-            "tenant_ref": {
-                "_config_obj_type": "tenant", 
-                "name": "admin", 
-                "url": "/api/tenant/?name=admin"
-            }, 
-            "type": "HEALTH_MONITOR_EXTERNAL", 
-            "url": "/api/healthmonitor/healthmonitor-56211aa3-dbee-4602-856d-98b186607e83", 
-            "uuid": "healthmonitor-56211aa3-dbee-4602-856d-98b186607e83"
-        }, 
-        {
-            "_avi_obj_type": "healthmonitor", 
-            "failed_checks": 3, 
-            "http_monitor": {
-                "exact_http_request": false, 
-                "http_request": "HEAD / HTTP/1.0", 
-                "http_response_code": [
-                    "HTTP_2XX", 
-                    "HTTP_3XX"
-                ]
-            }, 
-            "is_federated": false, 
-            "name": "System-HTTP", 
-            "receive_timeout": 4, 
-            "send_interval": 10, 
-            "successful_checks": 3, 
-            "tenant_ref": {
-                "_config_obj_type": "tenant", 
-                "name": "admin", 
-                "url": "/api/tenant/?name=admin"
-            }, 
-            "type": "HEALTH_MONITOR_HTTP", 
-            "url": "/api/healthmonitor/healthmonitor-a7a41e2d-6f0a-4ca9-ba8d-7b9f380b426a", 
-            "uuid": "healthmonitor-a7a41e2d-6f0a-4ca9-ba8d-7b9f380b426a"
-        }, 
-        {
-            "_avi_obj_type": "healthmonitor", 
-            "dns_monitor": {
-                "qtype": "DNS_QUERY_TYPE", 
-                "query_name": "www.google.com", 
-                "rcode": "RCODE_NO_ERROR"
-            }, 
-            "failed_checks": 2, 
-            "is_federated": false, 
-            "name": "System-DNS", 
-            "receive_timeout": 4, 
-            "send_interval": 6, 
-            "successful_checks": 2, 
-            "tenant_ref": {
-                "_config_obj_type": "tenant", 
-                "name": "admin", 
-                "url": "/api/tenant/?name=admin"
-            }, 
-            "type": "HEALTH_MONITOR_DNS", 
-            "url": "/api/healthmonitor/healthmonitor-770684d4-ee47-4b5d-823d-423f58e5c19e", 
-            "uuid": "healthmonitor-770684d4-ee47-4b5d-823d-423f58e5c19e"
         }
     ], 
     "NetworkProfile": [
@@ -733,7 +398,7 @@
             ], 
             "dhparam": "-----BEGIN DH PARAMETERS-----\nMIIBCAKCAQEAohUmEGbnPo1dxqvGg7zslnKTZAPPNnE7l1SdTbuPbsYF83J+VDkE\npUorADcUydwdPM9nTLEk4qKGnNsbt0S+WXf6EcP0oa+rjRFXsvb4B+tD4VHGmtDA\n/iivo51hKu93xaoS0xe9TjI9ZZBcirzyz3V55u/OICgNwRM6nL/Fxx3RXG3LGHP4\nJF73p/kR5cNB9ebYuKYaEzkTOg6pmCyguBEBdg40br+I59rQLgzn2WMRb1bZRUzy\nqSIIAMyok9/bsaxyCCsgVzkTPTtlYM9ooJzSGarlNaBhP3AerMdCV6rAQFYfP9vw\nKvbiJcx+IEdHViJLl2LAFl/gYxOnIBHAswIBAg==\n-----END DH PARAMETERS-----\n", 
             "enable_ssl_session_reuse": true, 
-            "name": "System-Standard-Portal", 
+            "name": "System-Standard", 
             "prefer_client_cipher_ordering": false, 
             "send_close_notify": true, 
             "ssl_rating": {
@@ -747,12 +412,125 @@
                 "name": "admin", 
                 "url": "/api/tenant/?name=admin"
             }, 
-            "type": "SSL_PROFILE_TYPE_SYSTEM", 
-            "url": "/api/sslprofile/sslprofile-fbb2d7fe-fceb-4047-8078-ba7fee95f0b7", 
-            "uuid": "sslprofile-fbb2d7fe-fceb-4047-8078-ba7fee95f0b7"
+            "type": "SSL_PROFILE_TYPE_APPLICATION", 
+            "url": "/api/sslprofile/sslprofile-7cc74ee8-d1db-49e6-bba1-7b9497f67e03", 
+            "uuid": "sslprofile-7cc74ee8-d1db-49e6-bba1-7b9497f67e03"
         }
     ], 
-    "ServiceEngineGroup": [], 
+    "ServiceEngineGroup": [
+        {
+            "_avi_obj_type": "serviceenginegroup", 
+            "active_standby": false, 
+            "advertise_backend_networks": false, 
+            "aggressive_failure_detection": false, 
+            "algo": "PLACEMENT_ALGO_PACKED", 
+            "archive_shm_limit": 8, 
+            "async_ssl": false, 
+            "async_ssl_threads": 1, 
+            "auto_rebalance": false, 
+            "auto_rebalance_interval": 300, 
+            "auto_redistribute_active_standby_load": false, 
+            "buffer_se": 0, 
+            "cloud_ref": {
+                "_config_obj_type": "cloud", 
+                "name": "vmc", 
+                "tenant": "admin", 
+                "url": "/api/cloud/?tenant=admin&name=vmc"
+            }, 
+            "connection_memory_percentage": 50, 
+            "cpu_reserve": false, 
+            "cpu_socket_affinity": false, 
+            "dedicated_dispatcher_core": false, 
+            "disable_csum_offloads": false, 
+            "disable_gro": true, 
+            "disable_tso": true, 
+            "disk_per_se": 10, 
+            "distribute_load_active_standby": false, 
+            "distribute_queues": false, 
+            "enable_hsm_priming": false, 
+            "enable_multi_lb": false, 
+            "enable_routing": false, 
+            "enable_vip_on_all_interfaces": true, 
+            "enable_vmac": false, 
+            "extra_config_multiplier": 0.0, 
+            "extra_shared_config_memory": 0, 
+            "flow_table_new_syn_max_entries": 0, 
+            "free_list_size": 1024, 
+            "ha_mode": "HA_MODE_SHARED", 
+            "hm_on_standby": true, 
+            "host_gateway_monitor": false, 
+            "ignore_rtt_threshold": 5000, 
+            "ingress_access_data": "SG_INGRESS_ACCESS_ALL", 
+            "ingress_access_mgmt": "SG_INGRESS_ACCESS_ALL", 
+            "least_load_core_selection": true, 
+            "license_tier": "ENTERPRISE_18", 
+            "license_type": "LIC_CORES", 
+            "log_disksz": 10000, 
+            "max_cpu_usage": 80, 
+            "max_public_ips_per_lb": 30, 
+            "max_rules_per_lb": 150, 
+            "max_scaleout_per_vs": 4, 
+            "max_se": 4, 
+            "max_vs_per_se": 10, 
+            "mem_reserve": false, 
+            "memory_per_se": 2048, 
+            "mgmt_network_ref": {
+                "_config_obj_type": "network", 
+                "url": "/api/network/network-14-cloud-66b8db25-93f6-4460-a250-f5e535be1d33"
+            }, 
+            "min_cpu_usage": 30, 
+            "min_scaleout_per_vs": 1, 
+            "name": "seg01a", 
+            "non_significant_log_throttle": 100, 
+            "num_dispatcher_cores": 0, 
+            "num_flow_cores_sum_changes_to_ignore": 8, 
+            "os_reserved_memory": 0, 
+            "pcap_reinit_frequency": 0, 
+            "pcap_reinit_threshold": 0, 
+            "per_app": false, 
+            "placement_mode": "PLACEMENT_MODE_AUTO", 
+            "se_bandwidth_type": "SE_BANDWIDTH_UNLIMITED", 
+            "se_deprovision_delay": 120, 
+            "se_ipc_udp_port": 1500, 
+            "se_name_prefix": "seg01a", 
+            "se_probe_port": 7, 
+            "se_remote_punt_udp_port": 1501, 
+            "se_sb_dedicated_core": false, 
+            "se_sb_threads": 1, 
+            "se_thread_multiplier": 1, 
+            "se_tunnel_mode": 0, 
+            "se_tunnel_udp_port": 1550, 
+            "se_udp_encap_ipc": 0, 
+            "se_vs_hb_max_pkts_in_batch": 64, 
+            "se_vs_hb_max_vs_in_pkt": 256, 
+            "significant_log_throttle": 100, 
+            "ssl_preprocess_sni_hostname": true, 
+            "tenant_ref": {
+                "_config_obj_type": "tenant", 
+                "name": "admin", 
+                "url": "/api/tenant/?name=admin"
+            }, 
+            "udf_log_throttle": 100, 
+            "url": "/api/serviceenginegroup/serviceenginegroup-9fe09483-79df-4e7c-8f2f-a73eee0c0c11", 
+            "uuid": "serviceenginegroup-9fe09483-79df-4e7c-8f2f-a73eee0c0c11", 
+            "vcenter_clusters": {
+                "cluster_refs": [
+                    "/api/vimgrclusterruntime/domain-c71-cloud-66b8db25-93f6-4460-a250-f5e535be1d33"
+                ], 
+                "include": true
+            }, 
+            "vcenter_datastore_mode": "VCENTER_DATASTORE_ANY", 
+            "vcenter_datastores_include": false, 
+            "vcenter_folder": "avi", 
+            "vcpus_per_se": 1, 
+            "vs_host_redundancy": true, 
+            "vs_scalein_timeout": 30, 
+            "vs_scalein_timeout_for_upgrade": 30, 
+            "vs_scaleout_timeout": 30, 
+            "waf_mempool": true, 
+            "waf_mempool_size": 64
+        }
+    ], 
     "Tenant": [
         {
             "_avi_obj_type": "tenant", 
@@ -764,279 +542,9 @@
             "name": "admin", 
             "url": "/api/tenant/admin", 
             "uuid": "admin"
-        }, 
-        {
-            "_avi_obj_type": "tenant", 
-            "config_settings": {
-                "se_in_provider_context": true, 
-                "tenant_access_to_provider_se": true, 
-                "tenant_vrf": false
-            }, 
-            "local": true, 
-            "name": "cumulus-prod", 
-            "url": "/api/tenant/tenant-c4cd5ed3-6e1f-48ad-8974-72dbc2140a3c", 
-            "uuid": "tenant-c4cd5ed3-6e1f-48ad-8974-72dbc2140a3c"
-        }
-    ], 
-    "VirtualService": [
-        {
-            "_avi_obj_type": "virtualservice", 
-            "active_standby_se_tag": "ACTIVE_STANDBY_SE_1", 
-            "analytics_policy": {
-                "client_insights": "ACTIVE", 
-                "enabled": true, 
-                "full_client_logs": {
-                    "all_headers": true, 
-                    "duration": 0, 
-                    "enabled": false, 
-                    "throttle": 10
-                }, 
-                "metrics_realtime_update": {
-                    "duration": 0, 
-                    "enabled": false
-                }, 
-                "significant_log_throttle": 10, 
-                "udf_log_throttle": 10
-            }, 
-            "analytics_profile_ref": {
-                "_config_obj_type": "analyticsprofile", 
-                "name": "System-Analytics-Profile", 
-                "tenant": "admin", 
-                "url": "/api/analyticsprofile/?tenant=admin&name=System-Analytics-Profile"
-            }, 
-            "application_profile_ref": {
-                "_config_obj_type": "applicationprofile", 
-                "name": "System-HTTP", 
-                "tenant": "admin", 
-                "url": "/api/applicationprofile/?tenant=admin&name=System-HTTP"
-            }, 
-            "bulk_sync_kvcache": false, 
-            "close_client_conn_on_config_update": false, 
-            "cloud_ref": {
-                "_config_obj_type": "cloud", 
-                "name": "vmc", 
-                "tenant": "admin", 
-                "url": "/api/cloud/?tenant=admin&name=vmc"
-            }, 
-            "cloud_type": "CLOUD_VCENTER", 
-            "content_rewrite": {
-                "request_rewrite_enabled": false, 
-                "response_rewrite_enabled": false, 
-                "rewritable_content_ref": "/api/stringgroup/?tenant=admin&name=System-Rewritable-Content-Types"
-            }, 
-            "delay_fairness": false, 
-            "enable_autogw": true, 
-            "enabled": true, 
-            "extension": {
-                "redis_db": 7, 
-                "redis_ip": "127.0.0.1", 
-                "redis_port": 5021, 
-                "tls_ticket_key": [
-                    {
-                        "aes_key": "KqNVLvS1s+3SaYxaGcyjbw==", 
-                        "hmac_key": "5N3yUXUJrhtXTYgQRtyHbQ==", 
-                        "name": "c8505bdb-452b-483f-a739-a94954552de5"
-                    }, 
-                    {
-                        "aes_key": "lWRMW2UPtsV3v6cOkhbF2Q==", 
-                        "hmac_key": "WwziLZz2gJlAeZRYIr2UOg==", 
-                        "name": "faf2c6a8-ea7f-4968-8133-cfd80eee041d"
-                    }, 
-                    {
-                        "aes_key": "JYlPNMku8iATlsCjO/CUoA==", 
-                        "hmac_key": "xCJb9ynOTFQriyk9XSyteA==", 
-                        "name": "3ec76991-33e0-4dd9-ba1a-217a9304bdd5"
-                    }
-                ], 
-                "version": 1156, 
-                "vip_runtime": [
-                    {
-                        "first_se_assigned_time": {
-                            "secs": 1533435004, 
-                            "usecs": 7852
-                        }, 
-                        "num_additional_se": 0, 
-                        "requested_resource": {
-                            "num_se": 1, 
-                            "num_standby_se": 0
-                        }, 
-                        "se_list": [
-                            {
-                                "admin_down_requested": false, 
-                                "at_curr_ver": true, 
-                                "attach_ip_status": "Programming Network reachability to the Virtual Service IP in the Cloud", 
-                                "attach_ip_success": true, 
-                                "delete_in_progress": false, 
-                                "download_selist_only": false, 
-                                "geo_download": false, 
-                                "geodb_download": false, 
-                                "gslb_download": false, 
-                                "is_connected": true, 
-                                "is_portchannel": false, 
-                                "is_primary": true, 
-                                "is_standby": false, 
-                                "memory": 2000, 
-                                "pending_download": false, 
-                                "scalein_in_progress": false, 
-                                "se_ref": "se-0050569d3e21", 
-                                "sec_idx": 1, 
-                                "vcpus": 1, 
-                                "version": "17.2.12(9128) 2018-07-20 02:01:24 UTC", 
-                                "vip_intf_list": [
-                                    {
-                                        "is_portchannel": false, 
-                                        "vip_intf_ip": {
-                                            "addr": "192.168.5.86", 
-                                            "type": "V4"
-                                        }, 
-                                        "vip_intf_mac": "00:50:56:9d:04:08", 
-                                        "vlan_id": 0
-                                    }
-                                ], 
-                                "vip_intf_mac": "00:50:56:9d:04:08", 
-                                "vip_subnet_mask": 32, 
-                                "vlan_id": 0, 
-                                "vnic": [
-                                    {
-                                        "mac": "00:50:56:9d:04:08", 
-                                        "type": "VNIC_TYPE_FE"
-                                    }, 
-                                    {
-                                        "mac": "00:50:56:9d:04:08", 
-                                        "type": "VNIC_TYPE_BE"
-                                    }
-                                ]
-                            }
-                        ], 
-                        "vip_id": "1"
-                    }
-                ]
-            }, 
-            "flow_dist": "LOAD_AWARE", 
-            "flow_label_type": "NO_LABEL", 
-            "ign_pool_net_reach": false, 
-            "limit_doser": false, 
-            "max_cps_per_client": 0, 
-            "name": "vs_192.168.1.15", 
-            "network_profile_ref": {
-                "_config_obj_type": "networkprofile", 
-                "name": "System-TCP-Proxy", 
-                "tenant": "admin", 
-                "url": "/api/networkprofile/?tenant=admin&name=System-TCP-Proxy"
-            }, 
-            "network_security_policy_ref": {
-                "_config_obj_type": "networksecuritypolicy", 
-                "name": "vs-vs_192.168.1.15-vmc-ns", 
-                "tenant": "admin", 
-                "url": "/api/networksecuritypolicy/?tenant=admin&name=vs-vs_192.168.1.15-vmc-ns"
-            }, 
-            "pool_ref": {
-                "_config_obj_type": "pool", 
-                "cloud": "vmc", 
-                "name": "vs_192.168.1.15-pool", 
-                "tenant": "admin", 
-                "url": "/api/pool/?tenant=admin&name=vs_192.168.1.15-pool&cloud=vmc"
-            }, 
-            "remove_listening_port_on_vs_down": false, 
-            "scaleout_ecmp": false, 
-            "se_group_ref": {
-                "_config_obj_type": "serviceenginegroup", 
-                "cloud": "vmc", 
-                "name": "seg01a", 
-                "tenant": "admin", 
-                "url": "/api/serviceenginegroup/?tenant=admin&name=seg01a&cloud=vmc"
-            }, 
-            "services": [
-                {
-                    "enable_ssl": false, 
-                    "port": 80, 
-                    "port_range_end": 80
-                }, 
-                {
-                    "enable_ssl": true, 
-                    "port": 443, 
-                    "port_range_end": 443
-                }
-            ], 
-            "sideband_profile": {
-                "sideband_max_request_body_size": 1024
-            }, 
-            "ssl_key_and_certificate_refs": {
-                "_config_obj_type": "sslkeyandcertificate", 
-                "name": "System-Default-Cert", 
-                "tenant": "admin", 
-                "url": "/api/sslkeyandcertificate/?tenant=admin&name=System-Default-Cert"
-            }, 
-            "ssl_profile_ref": {
-                "_config_obj_type": "sslprofile", 
-                "name": "System-Standard", 
-                "tenant": "admin", 
-                "url": "/api/sslprofile/?tenant=admin&name=System-Standard"
-            }, 
-            "ssl_sess_cache_avg_size": 1024, 
-            "tenant_ref": {
-                "_config_obj_type": "tenant", 
-                "name": "admin", 
-                "url": "/api/tenant/?name=admin"
-            }, 
-            "traffic_enabled": true, 
-            "type": "VS_TYPE_NORMAL", 
-            "url": "/api/virtualservice/virtualservice-8bdb96af-5ce3-4893-9903-388ed3c61bff", 
-            "use_bridge_ip_as_vip": false, 
-            "use_vip_as_snat": false, 
-            "uuid": "virtualservice-8bdb96af-5ce3-4893-9903-388ed3c61bff", 
-            "vrf_context_ref": {
-                "_config_obj_type": "vrfcontext", 
-                "cloud": "vmc", 
-                "name": "global", 
-                "tenant": "admin", 
-                "url": "/api/vrfcontext/?tenant=admin&name=global&cloud=vmc"
-            }, 
-            "vsvip_ref": {
-                "_config_obj_type": "vsvip", 
-                "cloud": "vmc", 
-                "name": "vsvip-vs_192.168.1.15-vmc", 
-                "tenant": "admin", 
-                "url": "/api/vsvip/?tenant=admin&name=vsvip-vs_192.168.1.15-vmc&cloud=vmc"
-            }, 
-            "weight": 1
         }
     ], 
     "VrfContext": [
-        {
-            "_avi_obj_type": "vrfcontext", 
-            "cloud_ref": {
-                "_config_obj_type": "cloud", 
-                "name": "vmc", 
-                "tenant": "admin", 
-                "url": "/api/cloud/?tenant=admin&name=vmc"
-            }, 
-            "name": "management", 
-            "static_routes": [
-                {
-                    "next_hop": {
-                        "addr": "192.168.0.5", 
-                        "type": "V4"
-                    }, 
-                    "prefix": {
-                        "ip_addr": {
-                            "addr": "0.0.0.0", 
-                            "type": "V4"
-                        }, 
-                        "mask": 0
-                    }, 
-                    "route_id": "serviceenginegroup-7b830533-a318-4928-9779-54ee304e1629"
-                }
-            ], 
-            "system_default": true, 
-            "tenant_ref": {
-                "_config_obj_type": "tenant", 
-                "name": "admin", 
-                "url": "/api/tenant/?name=admin"
-            }, 
-            "url": "/api/vrfcontext/vrfcontext-28e4d218-005e-4dbb-a5f6-3c449d4ecf72", 
-            "uuid": "vrfcontext-28e4d218-005e-4dbb-a5f6-3c449d4ecf72"
-        }, 
         {
             "_avi_obj_type": "vrfcontext", 
             "cloud_ref": {
@@ -1054,42 +562,6 @@
             }, 
             "url": "/api/vrfcontext/vrfcontext-ca0361bd-c1c2-4323-a296-a61f00572547", 
             "uuid": "vrfcontext-ca0361bd-c1c2-4323-a296-a61f00572547"
-        }, 
-        {
-            "_avi_obj_type": "vrfcontext", 
-            "cloud_ref": {
-                "_config_obj_type": "cloud", 
-                "name": "Default-Cloud", 
-                "tenant": "admin", 
-                "url": "/api/cloud/?tenant=admin&name=Default-Cloud"
-            }, 
-            "name": "management", 
-            "system_default": true, 
-            "tenant_ref": {
-                "_config_obj_type": "tenant", 
-                "name": "admin", 
-                "url": "/api/tenant/?name=admin"
-            }, 
-            "url": "/api/vrfcontext/vrfcontext-d551c3a1-4afe-45a0-a2d6-9affb0234346", 
-            "uuid": "vrfcontext-d551c3a1-4afe-45a0-a2d6-9affb0234346"
-        }, 
-        {
-            "_avi_obj_type": "vrfcontext", 
-            "cloud_ref": {
-                "_config_obj_type": "cloud", 
-                "name": "Default-Cloud", 
-                "tenant": "admin", 
-                "url": "/api/cloud/?tenant=admin&name=Default-Cloud"
-            }, 
-            "name": "global", 
-            "system_default": true, 
-            "tenant_ref": {
-                "_config_obj_type": "tenant", 
-                "name": "admin", 
-                "url": "/api/tenant/?name=admin"
-            }, 
-            "url": "/api/vrfcontext/vrfcontext-3d44322c-e19d-4c91-8f94-4831c79ba6cf", 
-            "uuid": "vrfcontext-3d44322c-e19d-4c91-8f94-4831c79ba6cf"
         }
     ], 
     "VsVip": [

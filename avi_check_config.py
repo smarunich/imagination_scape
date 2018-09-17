@@ -2,7 +2,6 @@
 import json
 from jsondiff import diff
 import re
-import pprint
 import argparse
 import collections
 
@@ -13,13 +12,13 @@ parser.add_argument('--config', action='store',
 parser.add_argument('--config-pattern', action='store',
                     dest='CONFIG_PATTERN', help='Name of Avi JSON configuration pattern file')
 parser.add_argument('--check-related-only', action='store_true',
-                    dest='CHECK_RELATED_ONLY', help='Truncate provided Avi JSON configuration file to related objects defined within pattern, i.e. allows to search against related objects only. In the background, generates only in scope configuration based on mentioned objects within pattern')
+                    dest='CHECK_RELATED_ONLY', help='*EXPERIMENTAL* Truncate provided Avi JSON configuration file to related objects defined within pattern, i.e. allows to search against related objects only. In the background, generates only in scope configuration based on mentioned objects within pattern')
 parser.add_argument('--output', action='store',
                     dest='OUTPUT_FOLDER', default='.', help='Folder path for output files to be created in')
-parser.add_argument('--show-config', action='store',
-                    dest='SHOW_CONFIG', help='Type and name of object to be checked. For example: VirtualService:vs1')
-parser.add_argument('--show-related-config', action='store',
-                    dest='SHOW_RELATED_CONFIG', help='Type and name of object to be checked. For example: VirtualService:vs1')
+parser.add_argument('--get-config', action='store',
+                    dest='GET_CONFIG', help='Type and name of object to be checked. For example: VirtualService:vs1')
+parser.add_argument('--get-related-config', action='store',
+                    dest='GET_RELATED_CONFIG', help='*EXPERIMENTAL* Type and name of object to be checked. For example: VirtualService:vs1')
 flags = parser.parse_args()
 
 
@@ -43,6 +42,7 @@ def universal_cmp(a, b):
         else:
             return diff(a, b, syntax='compact')
 
+''' Dictionary update function '''
 def update(d, u):
     for k, v in u.iteritems():
         if isinstance(v, collections.Mapping):
@@ -96,7 +96,6 @@ class avi_config():
                     obj_dict[obj_type].append(obj_name)
                 except:
                     pass
-        print obj_dict
         return obj_dict
 
     # Function to generate configuration for provided object
@@ -145,13 +144,11 @@ class avi_config():
                 try:
                     truncated_config.update(self._get_related_config(obj_type))
                 except:
-                    print obj_type
                     pass
             else:
                 for obj_name in obj_dict[obj_type]:
                     truncated_config.update(self._get_config(obj_type, obj_name))
                     truncated_config.update(self._get_related_config(obj_type, obj_name))
-        print truncated_config
         return truncated_config
 
     def _pattern_match(self, pattern):
@@ -302,8 +299,8 @@ if __name__ == "__main__":
             for key in pattern_match_report:
                 file_path = flags.OUTPUT_FOLDER+'/'+flags.CONFIG+'_'+key+'.json'
                 json_to_file(pattern_match_report[key], file_path)
-        if flags.OUTPUT_FOLDER and flags.SHOW_CONFIG:
-            related_config_options = flags.SHOW_CONFIG.split(':')
+        if flags.OUTPUT_FOLDER and flags.GET_CONFIG:
+            related_config_options = flags.GET_CONFIG.split(':')
             obj_type = related_config_options[0]
             try:
                 obj_name = related_config_options[1]
@@ -312,9 +309,9 @@ if __name__ == "__main__":
             file_path = flags.OUTPUT_FOLDER+'/'+flags.CONFIG+'_'+obj_type+'_'+obj_name+'_config.json'
             json_to_file(avi_config_from_file._get_config(
                     obj_type, obj_name), file_path)
-        if flags.OUTPUT_FOLDER and flags.SHOW_RELATED_CONFIG:
-            # For example: flags.SHOW_RELATED_CONFIG = "VirtualService:vs1"
-            related_config_options = flags.SHOW_RELATED_CONFIG.split(':')
+        if flags.OUTPUT_FOLDER and flags.GET_RELATED_CONFIG:
+            # For example: flags.GET_RELATED_CONFIG = "VirtualService:vs1"
+            related_config_options = flags.GET_RELATED_CONFIG.split(':')
             obj_type = related_config_options[0]
             try:
                 obj_name = related_config_options[1]
