@@ -66,7 +66,7 @@ The pattern example above outlines desired configuration for three properties fo
 ```bash
 root@avitools:~# ./avi_check_config.py --config config.json --config-pattern pattern1.json 
 ```
-As result, the tool will produce three files as output:
+As result, the tool will produce three files to output folder:
 ```
 config.json_matching_values.json
 config.json_mismatching_values.json
@@ -102,5 +102,105 @@ config.json_missing_options.json
     "VirtualService": {}
 }
 ```
-
-
+### Advanced patterns
+Patterns can include multiple different objects inside
+```json
+{
+    "VirtualService": [
+        {
+            "name": ["vs_192.168.1.15", "vs_dns01a_192.168.1.16_53"],
+            "network_profile_ref": "System-TCP",
+            "application_profile_ref": "Custom-HTTP",
+            "weight": 1
+        }
+    ],
+    "Pool": [
+        {
+            "rewrite_host_header_to_sni": false,
+            "lb_algorithm": "LB_ALGORITHM_LEAST_CONNECTIONS" }
+    ],
+    "ApplicationPersistenceProfile": [
+        {
+            "app_cookie_persistence_profile": {
+                "prst_hdr_name": "customhttpcookiename",
+                "timeout": 20
+            }
+        }
+    ],
+    "SSLProfile": [
+        {
+            "ssl_session_timeout": 86400,
+             "accepted_ciphers": "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-ECDSA-AES256-SHA384:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA"
+        }
+    ]
+}
+```
+### Get list of objects for specified type
+Object type is defined as per Avi JSON configuration file. The output will be written to the file in the specified output folder.
+```
+root@avitools:~# ./avi_check_config.py --config config.json --get-object-list VirtualService
+root@avitools:~# cat config.json_VirtualService_object_list.json
+[
+    "vs_gslb01a_192.168.1.14_53",
+    "vs_gslb02a_192.168.1.17_53",
+    "vs_192.168.1.15",
+    "vs_dns01a_192.168.1.16_53",
+    "vs_192.168.3.11"
+]
+```
+### Get configuration for the specified object type or exact object
+Can be useful to generate a full configuration for specified object type like VirtualService or for specific like  VirtualService:vs_gslb01a_192.168.1.14_53
+```
+root@avitools:~# ./avi_check_config.py --config config.json --get-config VirtualService:vs_gsb01a_192.168.1.14_53
+root@avitools:~# head -10 config.json_VirtualService_vs_gslb01a_192.168.1.14_53_config.json
+{
+    "VirtualService": [
+        {
+            "_avi_obj_type": "virtualservice",
+            "active_standby_se_tag": "ACTIVE_STANDBY_SE_1",
+            "analytics_policy": {
+                "client_insights": "NO_INSIGHTS",
+                "enabled": true,
+                "full_client_logs": {
+                    "all_headers": false,
+root@avitools:~# ./avi_check_config.py --config config.json --get-config VirtualService
+root@avitools:~# head -10 config.json_VirtualService__config.json
+{
+    "VirtualService": [
+        {
+            "_avi_obj_type": "virtualservice",
+            "active_standby_se_tag": "ACTIVE_STANDBY_SE_1",
+            "analytics_policy": {
+                "client_insights": "NO_INSIGHTS",
+                "enabled": true,
+                "full_client_logs": {
+                    "all_headers": false,
+```
+### Get related configuration to the specified object type or exact object 
+Can be useful to generate a full related configuration for specified object type like VirtualService or for specific like VirtualService:vs_gslb01a_192.168.1.14_53
+```
+root@avitools:~# ./avi_check_config.py --config config.json --get-related-config VirtualService
+root@avitools:~# head -10 config.json_VirtualService__related_config.json
+{
+    "AnalyticsProfile": [
+        {
+            "_avi_obj_type": "analyticsprofile",
+            "apdex_response_threshold": 500,
+            "apdex_response_tolerated_factor": 4.0,
+            "apdex_rtt_threshold": 250,
+            "apdex_rtt_tolerated_factor": 4.0,
+            "apdex_rum_threshold": 5000,
+            "apdex_rum_tolerated_factor": 4.0,
+root@avitools:~# ./avi_check_config.py --config config.json --get-related-config VirtualService:vs_gslb01a_192.168.1.14_53
+root@avitools:~# head -10 config.json_VirtualService_vs_gslb01a_192.168.1.14_53_related_config.json
+{
+    "AnalyticsProfile": [
+        {
+            "_avi_obj_type": "analyticsprofile",
+            "apdex_response_threshold": 500,
+            "apdex_response_tolerated_factor": 4.0,
+            "apdex_rtt_threshold": 250,
+            "apdex_rtt_tolerated_factor": 4.0,
+            "apdex_rum_threshold": 5000,
+            "apdex_rum_tolerated_factor": 4.0,
+```
