@@ -38,8 +38,8 @@ optional arguments:
                         *EXPERIMENTAL* Type and name of object to be checked.
                         For example: VirtualService:vs1
 ```
-## Howto
-### Perform configuration validation against pattern
+## HowTo
+### Configuration JSON file and Configuration Pattern JSON file
 Tool is designed to use offline backup of configuration as not necessary access to controller is always available or migration tool generated JSON configuration file. To obtain a configuration backup from controller:
 ```bash
 GET https://[CONTROLLER-IP]/api/configuration/export?full_system=true
@@ -62,4 +62,45 @@ Pattern file is defined using the same format as Configuration file with few exc
 }
 ```
 The pattern example above outlines desired configuration for three properties for the specified two VirtualServices.
+### Perform configuration validation against specified pattern
+```bash
+root@avitools:~# ./avi_check_config.py --config config.json --config-pattern pattern1.json 
+```
+As result, the tool will produce three files as output:
+```
+config.json_matching_values.json
+config.json_mismatching_values.json
+config.json_missing_options.json
+#
+# config.json_matching_values.json will represent values and properties that matched as per pattern or do exist within the configuraiton.
+#
+{
+    "VirtualService": {
+        "vs_192.168.1.15": {
+            "weight": 1
+        },
+        "vs_dns01a_192.168.1.16_53": {
+            "application_profile_ref": "/api/applicationprofile/?tenant=admin&name=System-DNS",
+            "network_profile_ref": "/api/networkprofile/?tenant=admin&name=System-UDP-Per-Pkt",
+            "weight": 1
+        }
+    }
+#
+# config.json_mismatching_values.json will represent values and properties that configured, but don't match as per pattern 
+# 
+{
+    "VirtualService": {
+        "vs_192.168.1.15": {
+            "application_profile_ref": "/api/applicationprofile/?tenant=admin&name=System-HTTP",
+            "network_profile_ref": "/api/networkprofile/?tenant=admin&name=System-TCP-Proxy"
+        }
+    }
+#
+# config.json_missing_options.json will represent options that are missing and not configured, but required to be set as per pattern
+#
+{
+    "VirtualService": {}
+}
+```
+
 
