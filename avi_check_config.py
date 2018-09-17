@@ -4,19 +4,28 @@ from jsondiff import diff
 import re
 import pprint
 import argparse
-
-__version__ = '0.1.1'
+import collections
 
 parser = argparse.ArgumentParser(
-    description='avi_check_config - configuration validation and differ tool')
+    description='avi_check_config - avi configuration validation tool')
 parser.add_argument('--config', action='store',
-                    dest='CONFIG', help='Avi JSON configuration file')
+                    dest='CONFIG', help='Name of Avi JSON configuration file')
 parser.add_argument('--config-pattern', action='store',
-                    dest='CONFIGPATTERN', help='Avi JSON configuration pattern')
+                    dest='CONFIG_PATTERN', help='Name of Avi JSON configuration pattern file')
+parser.add_argument('--check-related-only', action='store_true',
+                    dest='CHECK_RELATED_ONLY', help='Truncate provided Avi JSON configuration file to related objects defined within pattern, i.e. allows to search against related objects only. In the background, generates only in scope configuration based on mentioned objects within pattern')
 parser.add_argument('--output', action='store',
-                    dest='OUTPUTFOLDER', help='Output report folder')
+                    dest='OUTPUT_FOLDER', default='.', help='Folder path for output files to be created in')
+parser.add_argument('--show-config', action='store',
+                    dest='SHOW_CONFIG', help='Type and name of object to be checked. For example: VirtualService:vs1')
+parser.add_argument('--show-related-config', action='store',
+                    dest='SHOW_RELATED_CONFIG', help='Type and name of object to be checked. For example: VirtualService:vs1')
 flags = parser.parse_args()
 
+
+def json_to_file(output,file_path):
+    with open(file_path, "w") as file_path:
+        json.dump(output, file_path, sort_keys=True, indent=4)
 
 def universal_cmp(a, b):
     if type(a) == str and type(b) == str:
@@ -33,6 +42,17 @@ def universal_cmp(a, b):
             return True
         else:
             return diff(a, b, syntax='compact')
+
+def update(d, u):
+    for k, v in u.iteritems():
+        if isinstance(v, collections.Mapping):
+            d[k] = update(d.get(k, {}), v)
+        else:
+            d[k] = v
+    return d
+
+
+__version__ = '0.1.1'
 
 class avi_config():
     _SKIP_TYPE = [
@@ -64,19 +84,75 @@ class avi_config():
                         except:
                             pass
 
-    def _list_related_objects(self,obj_type, obj_name):
+    # Function to print list of objects and object names
+    # {u'VirtualService': [[u'vs_192.168.1.15', u'vs_dns01a_192.168.1.16_53']], u'VrfContext': [u'global'], u'ServiceEngineGroup': [u'gslb'], u'SSLProfile': [], u'Pool': [], u'ApplicationPersistenceProfile': []}
+    def _get_objects_dict(self):
+        obj_dict = {}
+        for obj_type in self._keys():
+            obj_dict[obj_type] = []
+            for config_obj in self[obj_type]:
+                try:
+                    obj_name = config_obj.name
+                    obj_dict[obj_type].append(obj_name)
+                except:
+                    pass
+        print obj_dict
+        return obj_dict
+
+    # Function to generate configuration for provided object
+    def _get_config(self, obj_type, obj_name=''):
+        config = {}
+        if obj_type in self.__dict__.keys():
+            for config_obj in self.__dict__[obj_type]:
+                if config_obj().name == obj_name or obj_name == '':
+                    config[obj_type] = [config_obj().__dict__]
+        return config
+
+    # Function to generate configuration related to provided object
+    def _get_related_config(self, obj_type, obj_name=''):
         related_config = {}
         if obj_type in self.__dict__.keys():
+            obj_related_config = {}
             for config_obj in self.__dict__[obj_type]:
                 if config_obj().name == obj_name:
                     for ref in config_obj()._refs().values():
                         for ref_config_obj in self.__dict__[config_obj()._lowercase_to_uppercase_config_obj_name[ref['_config_obj_type']]]:
                             if ref_config_obj().name == ref['name']:
-                                related_config[ref_config_obj(
-                                )._lowercase_to_uppercase_config_obj_name[ref['_config_obj_type']]] = [ref_config_obj()]
-        #pprint.pprint(related_config)
-        #print json.dumps(related_config, indent=2, sort_keys=True)
+                                obj_related_config[ref_config_obj(
+                                )._lowercase_to_uppercase_config_obj_name[ref['_config_obj_type']]] = []
+                            if ref_config_obj().name == ref['name']:
+                                obj_related_config[ref_config_obj(
+                                )._lowercase_to_uppercase_config_obj_name[ref['_config_obj_type']]].append(ref_config_obj().__dict__)
+                if obj_name == '':
+                    for ref in config_obj()._refs().values():
+                        for ref_config_obj in self.__dict__[config_obj()._lowercase_to_uppercase_config_obj_name[ref['_config_obj_type']]]:
+                            obj_related_config[ref_config_obj(
+                            )._lowercase_to_uppercase_config_obj_name[ref['_config_obj_type']]] = []
+                        for ref_config_obj in self.__dict__[config_obj()._lowercase_to_uppercase_config_obj_name[ref['_config_obj_type']]]:
+                            obj_related_config[ref_config_obj(
+                            )._lowercase_to_uppercase_config_obj_name[ref['_config_obj_type']]].append(ref_config_obj().__dict__)
+            related_config.update(obj_related_config)
         return related_config
+
+    # Function to truncate config file, i.e. generate related configuration based on provided pattern to limit search boundaries
+    def _truncate_config_based_on_pattern(self, pattern):
+        truncated_config = {}
+        obj_dict = pattern._get_objects_dict()
+        for obj_type in obj_dict.keys():
+            truncated_config[obj_type] = []
+            if obj_dict[obj_type] == []:
+                truncated_config.update(self._get_config(obj_type))
+                try:
+                    truncated_config.update(self._get_related_config(obj_type))
+                except:
+                    print obj_type
+                    pass
+            else:
+                for obj_name in obj_dict[obj_type]:
+                    truncated_config.update(self._get_config(obj_type, obj_name))
+                    truncated_config.update(self._get_related_config(obj_type, obj_name))
+        print truncated_config
+        return truncated_config
 
     def _pattern_match(self, pattern):
         matching_values = {}
@@ -202,23 +278,53 @@ class avi_object(object):
 
 if __name__ == "__main__":
     if flags.CONFIG:
-        if flags.CONFIGPATTERN:
-            avi_config_from_file = avi_config(
-                flags.CONFIG, "config", avi_object)
+        # Load Avi JSON configuration file
+        avi_config_from_file = avi_config(
+                        flags.CONFIG, "config", avi_object)
+        if flags.CONFIG_PATTERN and flags.OUTPUT_FOLDER:
+            # Load Avi JSON pattern file
             avi_config_pattern_from_file = avi_config(
-                flags.CONFIGPATTERN, "pattern", avi_object)
-            pattern_match_report = avi_config_from_file._pattern_match(avi_config_pattern_from_file)
-            avi_config_from_file._list_related_objects(
-                'VirtualService', 'vs_192.168.3.11')
-        if flags.OUTPUTFOLDER:
+                flags.CONFIG_PATTERN, "pattern", avi_object)
+            if flags.CHECK_RELATED_ONLY:
+                related_config = avi_config_from_file._truncate_config_based_on_pattern(
+                    avi_config_pattern_from_file)
+                file_path = flags.OUTPUT_FOLDER+'/'+flags.CONFIG + \
+                    '_related_config.json'
+                json_to_file(related_config, file_path)
+                related_avi_config_from_file = avi_config(
+                        file_path, "config", avi_object)
+                # perform pattern comparison
+                pattern_match_report = related_avi_config_from_file._pattern_match(
+                avi_config_pattern_from_file)
+            else:
+                # perform pattern comparison
+                pattern_match_report = avi_config_from_file._pattern_match(avi_config_pattern_from_file)
             for key in pattern_match_report:
-                file_path = flags.OUTPUTFOLDER+'/'+flags.CONFIG+'_'+key
-                with open(file_path, "w") as report_file:
-                    json.dump(
-                        pattern_match_report[key], report_file, sort_keys=True, indent=4)
-
+                file_path = flags.OUTPUT_FOLDER+'/'+flags.CONFIG+'_'+key+'.json'
+                json_to_file(pattern_match_report[key], file_path)
+        if flags.OUTPUT_FOLDER and flags.SHOW_CONFIG:
+            related_config_options = flags.SHOW_CONFIG.split(':')
+            obj_type = related_config_options[0]
+            try:
+                obj_name = related_config_options[1]
+            except:
+                obj_name = ''
+            file_path = flags.OUTPUT_FOLDER+'/'+flags.CONFIG+'_'+obj_type+'_'+obj_name+'_config.json'
+            json_to_file(avi_config_from_file._get_config(
+                    obj_type, obj_name), file_path)
+        if flags.OUTPUT_FOLDER and flags.SHOW_RELATED_CONFIG:
+            # For example: flags.SHOW_RELATED_CONFIG = "VirtualService:vs1"
+            related_config_options = flags.SHOW_RELATED_CONFIG.split(':')
+            obj_type = related_config_options[0]
+            try:
+                obj_name = related_config_options[1]
+            except:
+                obj_name = ''
+            file_path = flags.OUTPUT_FOLDER+'/'+flags.CONFIG + '_'+obj_type+'_'+obj_name+'_related_config.json'
+            json_to_file(avi_config_from_file._get_related_config(
+                obj_type, obj_name), file_path)
 
 '''
     # get all configuration related to the object
-    config_from_backup._list_related_objects('VirtualService', 'vs_192.168.3.11')
+    config_from_backup._get_related_config('VirtualService', 'vs_192.168.3.11')
 '''

@@ -1,7 +1,7 @@
 {
     "VirtualService": [
         {
-            "name": ["vs_192.168.1.15", "vs_dns01a_192.168.1.16_53"],
+            "name": "vs_192.168.1.15",
             "network_profile_ref": "System-TCP",
             "application_profile_ref": "Custom-HTTP",
             "weight": 1
@@ -11,8 +11,7 @@
         {
             "name": "gslb",
             "vcenter_folder": "avi",
-            "memory_per_se": 2048,
-            "fake_option": true
+            "memory_per_se": 2048
         }
     ],
     "Pool": [

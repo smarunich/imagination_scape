@@ -1,7 +1,6 @@
 {
     "VirtualService": [
         {
-            "name": "vs_",
             "network_profile_ref": "System",
             "application_profile_ref": "System",
             "weight": 1

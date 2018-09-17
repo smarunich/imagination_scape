@@ -1,13 +1,12 @@
 {
     "VirtualService": [
         {
-            "name": "vs_",
             "network_profile_ref": "System",
             "application_profile_ref": "System",
             "weight": 1,
             "content_rewrite": {
                 "rewritable_content_ref": "/api/stringgroup/?tenant=admin&name=System-Rewritable-Content-Types",
-                "response_rewrite_enabled": false,
+                "response_rewrite_enabled": true,
                 "request_rewrite_enabled": false
             },
             "delay_fairness": false,
@@ -17,13 +16,13 @@
                     "algorithm": "DNS_RECORD_RESPONSE_ROUND_ROBIN",
                     "num_records_in_response": 0,
                     "fqdn": [
-                        "sub01.gslb01.lab.sm"
+                        "sub99.gslb01.lab.sm"
                     ],
                     "delegated": true,
                     "ns": [
                         {
                             "ip_address": {
-                                "type": "V4",
+                                "type": "V5",
                                 "addr": "192.168.1.14"
                             },
                             "nsname": "gslb01a.lab.sm"
@@ -36,7 +35,7 @@
                     "algorithm": "DNS_RECORD_RESPONSE_ROUND_ROBIN",
                     "num_records_in_response": 0,
                     "fqdn": [
-                        "sub02.gslb01.lab.sm"
+                        "sub101.gslb01.lab.sm"
                     ],
                     "delegated": true,
                     "ns": [
