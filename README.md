@@ -206,7 +206,4 @@ root@avitools:~# head -10 config.json_VirtualService_vs_gslb01a_192.168.1.14_53_
 ```
 ### (IN DEVELOPMENT) Check related configuration only
 For example, the list of VirtualServices has to be checked with the list of attacheds objects to them like Pools, AppPersistenceProfiles and SSLProfiles, however names for associated objects are not know. "Check related" functionality can allow to generate partial (in-scope) configuration that relates only to the virtualservices and perform check within it, instead of checking every SSLProfile or Pool that is not associated with listed VirtualServices.
-*Option 1
-```
-root@avitools:/opt/avi/ansible/workspace/scripts/python/avi_check_config# ./avi_check_config.py --config config.json --config-pattern pattern1.json --check-related-only
-```
+
