@@ -5,6 +5,9 @@ import re
 import argparse
 import collections
 
+__version__ = '0.1.2'
+__credits__ = 'Avi Networks PS'
+
 parser = argparse.ArgumentParser(
     description='avi_check_config - avi configuration validation tool')
 parser.add_argument('--config', action='store',
@@ -15,6 +18,8 @@ parser.add_argument('--check-related-only', action='store_true',
                     dest='CHECK_RELATED_ONLY', help='*EXPERIMENTAL* Truncate provided Avi JSON configuration file to related objects defined within pattern, i.e. allows to search against related objects only. In the background, generates only in scope configuration based on mentioned objects within pattern')
 parser.add_argument('--output', action='store',
                     dest='OUTPUT_FOLDER', default='.', help='Folder path for output files to be created in')
+parser.add_argument('--get-object-list', action='store',
+                    dest='GET_OBJECT_LIST', help='Type and name of objects to be listed. For example: VirtualService')
 parser.add_argument('--get-config', action='store',
                     dest='GET_CONFIG', help='Type and name of object to be checked. For example: VirtualService:vs1')
 parser.add_argument('--get-related-config', action='store',
@@ -50,9 +55,6 @@ def update(d, u):
         else:
             d[k] = v
     return d
-
-
-__version__ = '0.1.1'
 
 class avi_config():
     _SKIP_TYPE = [
@@ -320,8 +322,9 @@ if __name__ == "__main__":
             file_path = flags.OUTPUT_FOLDER+'/'+flags.CONFIG + '_'+obj_type+'_'+obj_name+'_related_config.json'
             json_to_file(avi_config_from_file._get_related_config(
                 obj_type, obj_name), file_path)
-
-'''
-    # get all configuration related to the object
-    config_from_backup._get_related_config('VirtualService', 'vs_192.168.3.11')
-'''
+        if flags.GET_OBJECT_LIST:
+            obj_type = flags.GET_OBJECT_LIST
+            file_path = flags.OUTPUT_FOLDER+'/'+flags.CONFIG + \
+                '_'+obj_type+'_object_list.json'
+            json_to_file(avi_config_from_file._get_objects_dict()[
+                flags.GET_OBJECT_LIST], file_path)
