@@ -1,0 +1,26 @@
+{
+    "analytics_profile_ref": {
+        "_config_obj_type": "analyticsprofile", 
+        "name": "System-Analytics-Profile", 
+        "tenant": "admin", 
+        "url": "/api/analyticsprofile/?tenant=admin&name=System-Analytics-Profile"
+    }, 
+    "cloud_ref": {
+        "_config_obj_type": "cloud", 
+        "name": "vmc", 
+        "tenant": "admin", 
+        "url": "/api/cloud/?tenant=admin&name=vmc"
+    }, 
+    "tenant_ref": {
+        "_config_obj_type": "tenant", 
+        "name": "admin", 
+        "url": "/api/tenant/?name=admin"
+    }, 
+    "vrf_context_ref": {
+        "_config_obj_type": "vrfcontext", 
+        "cloud": "vmc", 
+        "name": "global", 
+        "tenant": "admin", 
+        "url": "/api/vrfcontext/?tenant=admin&name=global&cloud=vmc"
+    }
+}

@@ -20,6 +20,8 @@ parser.add_argument('--output', action='store',
                     dest='OUTPUT_FOLDER', default='.', help='Folder path for output files to be created in')
 parser.add_argument('--get-object-list', action='store',
                     dest='GET_OBJECT_LIST', help='Type and name of objects to be listed. For example: VirtualService')
+parser.add_argument('--get-shared-objects-list', action='store',
+                    dest='GET_SHARED_OBJECTS_LIST', help='Object type and list of names to provide. For example: VirtualService:vs1,vs2,vs3')
 parser.add_argument('--get-config', action='store',
                     dest='GET_CONFIG', help='Type and name of object to be checked. For example: VirtualService:vs1')
 parser.add_argument('--get-related-config', action='store',
@@ -108,6 +110,23 @@ class avi_config():
                 if config_obj().name == obj_name or obj_name == '':
                     config[obj_type] = [config_obj().__dict__]
         return config
+
+    # Function to provide list of shared properties i.e. shared objects for provided list of objects
+    def _get_shared_objects_list(self, obj_type, obj_list):
+        obj_name_list = obj_list.split(',')
+        config_refs = {}
+        if obj_type in self.__dict__.keys():
+            for config_obj in self.__dict__[obj_type]:
+                for obj_name in obj_name_list:
+                    if config_obj().name == obj_name:
+                        config_refs[obj_name] =  config_obj()._refs()
+        # Perform compare between first and next object within list of objects for shared properties, i.e. for identical references, intermediate results of shared_items save to obj0_refs for further comparison in the list with next object
+        obj0_refs = config_refs[obj_name_list[0]]
+        for name in obj_name_list[1:]:
+            obj1_refs = config_refs[name]
+            shared_refs = {k: obj0_refs[k] for k in obj0_refs if k in obj1_refs and obj0_refs[k] == obj1_refs[k]}
+            obj0_refs = shared_refs
+        return shared_refs
 
     # Function to generate configuration related to provided object
     def _get_related_config(self, obj_type, obj_name=''):
@@ -328,3 +347,12 @@ if __name__ == "__main__":
                 '_'+obj_type+'_object_list.json'
             json_to_file(avi_config_from_file._get_objects_dict()[
                 flags.GET_OBJECT_LIST], file_path)
+        if flags.GET_SHARED_OBJECTS_LIST:
+            #  For example: flags.GET_SHARED_OBJECTS_LIST = "VirtualService:vs1,vs2,vs3"
+            get_shared_objects_list_options = flags.GET_SHARED_OBJECTS_LIST.split(':')
+            obj_type = get_shared_objects_list_options[0]
+            obj_list = get_shared_objects_list_options[1]
+            file_path = flags.OUTPUT_FOLDER+'/'+flags.CONFIG + \
+                '_'+obj_type+'_shared_objects_list.json'
+            json_to_file(avi_config_from_file._get_shared_objects_list(
+                obj_type,obj_list), file_path)
