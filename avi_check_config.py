@@ -5,7 +5,7 @@ import re
 import argparse
 import collections
 
-__version__ = '0.1.2'
+__version__ = '0.1.4'
 __credits__ = 'Avi Networks PS'
 
 parser = argparse.ArgumentParser(
@@ -19,19 +19,22 @@ parser.add_argument('--check-related-only', action='store_true',
 parser.add_argument('--output', action='store',
                     dest='OUTPUT_FOLDER', default='.', help='Folder path for output files to be created in')
 parser.add_argument('--get-object-list', action='store',
-                    dest='GET_OBJECT_LIST', help='Type and name of objects to be listed. For example: VirtualService')
+                    dest='GET_OBJECT_LIST', help='Provide list of objects of specified type. Type of object is required attributes. For example: VirtualService')
 parser.add_argument('--get-shared-objects-list', action='store',
-                    dest='GET_SHARED_OBJECTS_LIST', help='Object type and list of names to provide. For example: VirtualService:vs1,vs2,vs3')
+                    dest='GET_SHARED_OBJECTS_LIST', help='Provide list of common referred objects across specified objects. Object type and list of names are required attributes. For example: VirtualService:vs1,vs2,vs3')
+parser.add_argument('--get-referred-by-list', action='store',
+                    dest='GET_REFERRED_BY_LIST', help='Provide list of objects leveraging specified object, i.e referring the object. Object type and name are required attributes. For example: Pool:pool1')
 parser.add_argument('--get-config', action='store',
-                    dest='GET_CONFIG', help='Type and name of object to be checked. For example: VirtualService:vs1')
+                    dest='GET_CONFIG', help='Provide configuration file for specified object. Type is required attribute, Name is optional, if Name is not provided configuration file generated for all objects of the specified Type . For example: VirtualService:vs1')
 parser.add_argument('--get-related-config', action='store',
-                    dest='GET_RELATED_CONFIG', help='*EXPERIMENTAL* Type and name of object to be checked. For example: VirtualService:vs1')
+                    dest='GET_RELATED_CONFIG', help='*EXPERIMENTAL* Provide configuration file for specified child or related objects of parent object. Object type and name are required attributes. For example: Pool:pool11')
 flags = parser.parse_args()
 
 
 def json_to_file(output,file_path):
     with open(file_path, "w") as file_path:
         json.dump(output, file_path, sort_keys=True, indent=4)
+    print json.dumps(output, sort_keys=True, indent=4)
 
 def universal_cmp(a, b):
     if type(a) == str and type(b) == str:
@@ -90,7 +93,7 @@ class avi_config():
 
     # Function to print list of objects and object names
     # {u'VirtualService': [[u'vs_192.168.1.15', u'vs_dns01a_192.168.1.16_53']], u'VrfContext': [u'global'], u'ServiceEngineGroup': [u'gslb'], u'SSLProfile': [], u'Pool': [], u'ApplicationPersistenceProfile': []}
-    def _get_objects_dict(self):
+    def _get_objects_list(self):
         obj_dict = {}
         for obj_type in self._keys():
             obj_dict[obj_type] = []
@@ -121,12 +124,35 @@ class avi_config():
                     if config_obj().name == obj_name:
                         config_refs[obj_name] =  config_obj()._refs()
         # Perform compare between first and next object within list of objects for shared properties, i.e. for identical references, intermediate results of shared_items save to obj0_refs for further comparison in the list with next object
-        obj0_refs = config_refs[obj_name_list[0]]
+        x_refs = config_refs[obj_name_list[0]]
         for name in obj_name_list[1:]:
-            obj1_refs = config_refs[name]
-            shared_refs = {k: obj0_refs[k] for k in obj0_refs if k in obj1_refs and obj0_refs[k] == obj1_refs[k]}
-            obj0_refs = shared_refs
+            y_refs = config_refs[name]
+            shared_refs = {k: x_refs[k] for k in x_refs if k in y_refs and x_refs[k] == y_refs[k]}
+            x_refs = shared_refs
         return shared_refs
+
+    # Function to generate list of objects leveraging specified object, i.e. referring the object
+    def _get_referred_by_list(self, obj_type, obj_name):
+        obj_dict = {}
+        # Lookup obj_uuid from obj_name
+        if obj_type in self.__dict__.keys():
+            for config_obj in self.__dict__[obj_type]:
+                if config_obj().name == obj_name:
+                    obj_uuid = config_obj().uuid
+        for obj_type in self.__dict__.keys():
+            obj_dict[obj_type] = []
+            for config_obj in self.__dict__[obj_type]:
+                for ref_item in config_obj()._refs().values():
+                    # If it's list of refs, transform list to string for easier string matching
+                    if type(ref_item) is list:
+                        ref_item = ''.join(ref_item)
+                    #
+                    if obj_uuid in ref_item or obj_name in ref_item:
+                        obj_dict[obj_type].append(config_obj().name)
+            # If no objects found in the obj_type, pop object type from output
+            if obj_dict[obj_type] == []:
+                obj_dict.pop(obj_type)
+        return obj_dict
 
     # Function to generate configuration related to provided object
     def _get_related_config(self, obj_type, obj_name=''):
@@ -157,7 +183,7 @@ class avi_config():
     # Function to truncate config file, i.e. generate related configuration based on provided pattern to limit search boundaries
     def _truncate_config_based_on_pattern(self, pattern):
         truncated_config = {}
-        obj_dict = pattern._get_objects_dict()
+        obj_dict = pattern._get_objects_list()
         for obj_type in obj_dict.keys():
             truncated_config[obj_type] = []
             if obj_dict[obj_type] == []:
@@ -259,26 +285,27 @@ class avi_object(object):
             # placeholder for __type__
             if 'url' == attr:
                 self.__dict__['_avi_obj_type'] = (re.search(r"(\/api\/)(\w+)", self.__dict__[attr])).group(2)
-            if '_ref' in attr:
+            if re.search(r"(_ref$)|(_refs$)", attr):
                 # /api/pool/?tenant=admin&name=vs_192.168.3.11-local_pool&cloud=vmc
                 ref_url = getattr(self, attr)
                 if type(ref_url) is list:
                     ref_url = ref_url[0]
-                self.__dict__[attr] = { u'url': ref_url }
-                if 'tenant=' in ref_url:
-                    tenant = (re.search(r"tenant=([^&]*)", ref_url)).group(1)
-                    self.__dict__[attr][u'tenant'] = tenant
-                if 'cloud=' in ref_url:
-                    cloud = (re.search(r"cloud=([^&]*)", ref_url)).group(1)
-                    self.__dict__[attr][u'cloud'] = cloud
-                if 'name=' in ref_url:
-                    name = (re.search(r"name=([^&]*)", ref_url)).group(1)
-                    self.__dict__[attr][u'name'] = name
-                try:
-                    self.__dict__[attr][u'_config_obj_type'] = (
-                        re.search(r"(\/api\/)(\w+)", ref_url)).group(2)
-                except:
-                    pass
+                if type(ref_url) is str:
+                    self.__dict__[attr] = { u'url': ref_url }
+                    if 'tenant=' in ref_url:
+                        tenant = (re.search(r"tenant=([^&]*)", ref_url)).group(1)
+                        self.__dict__[attr][u'tenant'] = tenant
+                    if 'cloud=' in ref_url:
+                        cloud = (re.search(r"cloud=([^&]*)", ref_url)).group(1)
+                        self.__dict__[attr][u'cloud'] = cloud
+                    if 'name=' in ref_url:
+                        name = (re.search(r"name=([^&]*)", ref_url)).group(1)
+                        self.__dict__[attr][u'name'] = name
+                    try:
+                        self.__dict__[attr][u'_config_obj_type'] = (
+                            re.search(r"(\/api\/)(\w+)", ref_url)).group(2)
+                    except:
+                        pass
     def __getitem__(self, key):
         return self.__dict__[key]
     def __repr__(self):
@@ -290,7 +317,7 @@ class avi_object(object):
     def _refs (self):
         refs = {}
         for key in self._keys():
-            if re.search('ref',key):
+            if re.search("(_ref$)|(_refs$)", key):
                 refs[key] = self.__dict__[key]
         return refs
 
@@ -345,7 +372,7 @@ if __name__ == "__main__":
             obj_type = flags.GET_OBJECT_LIST
             file_path = flags.OUTPUT_FOLDER+'/'+flags.CONFIG + \
                 '_'+obj_type+'_object_list.json'
-            json_to_file(avi_config_from_file._get_objects_dict()[
+            json_to_file(avi_config_from_file._get_objects_list()[
                 flags.GET_OBJECT_LIST], file_path)
         if flags.GET_SHARED_OBJECTS_LIST:
             #  For example: flags.GET_SHARED_OBJECTS_LIST = "VirtualService:vs1,vs2,vs3"
@@ -356,3 +383,12 @@ if __name__ == "__main__":
                 '_'+obj_type+'_shared_objects_list.json'
             json_to_file(avi_config_from_file._get_shared_objects_list(
                 obj_type,obj_list), file_path)
+        if flags.GET_REFERRED_BY_LIST:
+            get_referred_by_list_options = flags.GET_REFERRED_BY_LIST.split(
+                ':')
+            obj_type = get_referred_by_list_options[0]
+            obj_name = get_referred_by_list_options[1]
+            file_path = flags.OUTPUT_FOLDER+'/'+flags.CONFIG + \
+                '_'+obj_type+'_referred_by_list.json'
+            json_to_file(avi_config_from_file._get_referred_by_list(
+                obj_type, obj_name), file_path)
