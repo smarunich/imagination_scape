@@ -4,37 +4,48 @@ from jsondiff import diff
 import re
 import argparse
 import collections
+import datetime
+from avi.sdk.avi_api import ApiSession
 
-__version__ = '0.1.4'
+__version__ = '0.2.0'
 __credits__ = 'Avi Networks PS'
 
 parser = argparse.ArgumentParser(
     description='avi_check_config - avi configuration validation tool')
+parser.add_argument('--get-avi-config', action='store',
+                    dest='GET_AVI_CONFIG', help='Download configuration from controller: GET api/configuration/export?include_name=true&uuid_refs=true. Controller FQDN or IP, username and password delimitted by ":" has to be provided. For example avi_controller1.avi:admin:password')
 parser.add_argument('--config', action='store',
-                    dest='CONFIG', help='Name of Avi JSON configuration file')
+                    dest='CONFIG', help='Name of Avi JSON configuration file. Please ensure configuration is exported with options include_name=true&uuid_refs=true or please leverage --get-avi-config option to acquite Avi JSON configuration file.')
 parser.add_argument('--config-pattern', action='store',
                     dest='CONFIG_PATTERN', help='Name of Avi JSON configuration pattern file')
 parser.add_argument('--check-related-only', action='store_true',
-                    dest='CHECK_RELATED_ONLY', help='*EXPERIMENTAL* Truncate provided Avi JSON configuration file to related objects defined within pattern, i.e. allows to search against related objects only. In the background, generates only in scope configuration based on mentioned objects within pattern')
+                    dest='CHECK_RELATED_ONLY', help='*EXPERIMENTAL* Truncate provided Avi JSON configuration file to related objects defined within pattern, i.e. allows to search against related objects only. In the background, generates only in scope configuration based on mentioned objects within pattern. *REQUIRES EXPORTED CONFIGURATION FROM CONTROLLER*')
 parser.add_argument('--output', action='store',
                     dest='OUTPUT_FOLDER', default='.', help='Folder path for output files to be created in')
 parser.add_argument('--get-object-list', action='store',
-                    dest='GET_OBJECT_LIST', help='Provide list of objects of specified type. Type of object is required attributes. For example: VirtualService')
+                    dest='GET_OBJECT_LIST', help='Get list of objects of specified type. Type of object is required attributes. For example: VirtualService')
 parser.add_argument('--get-shared-objects-list', action='store',
-                    dest='GET_SHARED_OBJECTS_LIST', help='Provide list of common referred objects across specified objects. Object type and list of names are required attributes. For example: VirtualService:vs1,vs2,vs3')
+                    dest='GET_SHARED_OBJECTS_LIST', help='Get list of common referred objects across specified objects. Object type and list of names are required attributes. For example: VirtualService:vs1,vs2,vs3. *REQUIRES EXPORTED CONFIGURATION FROM CONTROLLER*')
 parser.add_argument('--get-referred-by-list', action='store',
-                    dest='GET_REFERRED_BY_LIST', help='Provide list of objects leveraging specified object, i.e referring the object. Object type and name are required attributes. For example: Pool:pool1')
+                    dest='GET_REFERRED_BY_LIST', help='Get list of objects leveraging specified object, i.e referring the object. Object type and name are required attributes. For example: Pool:pool1. *REQUIRES EXPORTED CONFIGURATION FROM CONTROLLER*')
 parser.add_argument('--get-config', action='store',
-                    dest='GET_CONFIG', help='Provide configuration file for specified object. Type is required attribute, Name is optional, if Name is not provided configuration file generated for all objects of the specified Type . For example: VirtualService:vs1')
+                    dest='GET_OBJ_CONFIG', help='Get configuration file for specified object. Type is required attribute, Name is optional, if Name is not provided configuration file generated for all objects of the specified Type. For example: VirtualService:vs1')
 parser.add_argument('--get-related-config', action='store',
-                    dest='GET_RELATED_CONFIG', help='*EXPERIMENTAL* Provide configuration file for specified child or related objects of parent object. Object type and name are required attributes. For example: Pool:pool11')
+                    dest='GET_RELATED_CONFIG', help='Provide configuration file for specified child or related objects of parent object. Object type and name are required attributes. For example: Pool:pool11. *REQUIRES EXPORTED CONFIGURATION FROM CONTROLLER*')
 flags = parser.parse_args()
 
-
 def json_to_file(output,file_path):
-    with open(file_path, "w") as file_path:
-        json.dump(output, file_path, sort_keys=True, indent=4)
-    print json.dumps(output, sort_keys=True, indent=4)
+    file_path = file_path + '_' + datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + '.json'
+    print file_path
+    with open(file_path, "w") as json_file:
+        json.dump(output, json_file, indent=4)
+    print json.dumps(output, indent=4)
+    return file_path
+
+def get_avi_config(avi_controller, avi_username, avi_password, tenant="admin"):
+    api = ApiSession.get_session(avi_controller, avi_username, avi_password, tenant=tenant)
+    resp = api.get('configuration/export?include_name=true&uuid_refs=true')
+    return resp.json()
 
 def universal_cmp(a, b):
     if type(a) == str and type(b) == str:
@@ -61,6 +72,24 @@ def update(d, u):
             d[k] = v
     return d
 
+''' Produce flat json dict '''
+def flatten_json(y):
+    out = {}
+
+    def flatten(x, name=''):
+        if type(x) is dict:
+            for a in x:
+                flatten(x[a], name + a + ':')
+        elif type(x) is list:
+            i = 0
+            for a in x:
+                flatten(a, name + str(i) + ':')
+                i += 1
+        else:
+            out[name[:-1]] = x
+    flatten(y)
+    return out
+
 class avi_config():
     _SKIP_TYPE = [
         "META"
@@ -69,9 +98,9 @@ class avi_config():
         "name"
     ]
     def __init__(self,file_path, file_type, obj_class):
-        self._json2object(file_path, file_type, obj_class)
+        self._json_to_object(file_path, file_type, obj_class)
 
-    def _json2object(self,file_path, file_type, obj_class):
+    def _json_to_object(self,file_path, file_type, obj_class):
         with open(file_path) as file_name:
             config_file = json.load(file_name)
         if file_type == "config":
@@ -106,7 +135,7 @@ class avi_config():
         return obj_dict
 
     # Function to generate configuration for provided object
-    def _get_config(self, obj_type, obj_name=''):
+    def _get_obj_config(self, obj_type, obj_name=''):
         config = {}
         if obj_type in self.__dict__.keys():
             for config_obj in self.__dict__[obj_type]:
@@ -134,19 +163,18 @@ class avi_config():
     # Function to generate list of objects leveraging specified object, i.e. referring the object
     def _get_referred_by_list(self, obj_type, obj_name):
         obj_dict = {}
+        obj_uuid = obj_name # search using name if UUID is not found
         # Lookup obj_uuid from obj_name
         if obj_type in self.__dict__.keys():
             for config_obj in self.__dict__[obj_type]:
                 if config_obj().name == obj_name:
                     obj_uuid = config_obj().uuid
+                    if hasattr(config_obj, 'uuid'):
+                        obj_uuid = config_obj().uuid
         for obj_type in self.__dict__.keys():
             obj_dict[obj_type] = []
             for config_obj in self.__dict__[obj_type]:
-                for ref_item in config_obj()._refs().values():
-                    # If it's list of refs, transform list to string for easier string matching
-                    if type(ref_item) is list:
-                        ref_item = ''.join(ref_item)
-                    #
+                for ref_item in flatten_json(config_obj()._refs()).values():
                     if obj_uuid in ref_item or obj_name in ref_item:
                         obj_dict[obj_type].append(config_obj().name)
             # If no objects found in the obj_type, pop object type from output
@@ -155,28 +183,24 @@ class avi_config():
         return obj_dict
 
     # Function to generate configuration related to provided object
-    def _get_related_config(self, obj_type, obj_name=''):
+    def _get_related_config(self,obj_type, obj_name=''):
         related_config = {}
-        if obj_type in self.__dict__.keys():
+        if obj_type in self._keys():
             obj_related_config = {}
-            for config_obj in self.__dict__[obj_type]:
-                if config_obj().name == obj_name:
+            for config_obj in self[obj_type]:
+                if config_obj().name == obj_name or obj_name == '':
                     for ref in config_obj()._refs().values():
-                        for ref_config_obj in self.__dict__[config_obj()._lowercase_to_uppercase_config_obj_name[ref['_config_obj_type']]]:
-                            if ref_config_obj().name == ref['name']:
-                                obj_related_config[ref_config_obj(
-                                )._lowercase_to_uppercase_config_obj_name[ref['_config_obj_type']]] = []
-                            if ref_config_obj().name == ref['name']:
-                                obj_related_config[ref_config_obj(
-                                )._lowercase_to_uppercase_config_obj_name[ref['_config_obj_type']]].append(ref_config_obj().__dict__)
-                if obj_name == '':
-                    for ref in config_obj()._refs().values():
-                        for ref_config_obj in self.__dict__[config_obj()._lowercase_to_uppercase_config_obj_name[ref['_config_obj_type']]]:
-                            obj_related_config[ref_config_obj(
-                            )._lowercase_to_uppercase_config_obj_name[ref['_config_obj_type']]] = []
-                        for ref_config_obj in self.__dict__[config_obj()._lowercase_to_uppercase_config_obj_name[ref['_config_obj_type']]]:
-                            obj_related_config[ref_config_obj(
-                            )._lowercase_to_uppercase_config_obj_name[ref['_config_obj_type']]].append(ref_config_obj().__dict__)
+                        ref_obj_type = re.search(r"(\/api\/)(\w+)",ref).group(2)
+                        ref_obj_uuid = re.search(
+                            r"(\/api\/)(\w+)\/(.*)(\#)", ref).group(3)
+                        ref_obj_uppercase_type = config_obj(
+                        )._lowercase_to_uppercase_config_obj_name[ref_obj_type]
+                        for ref_config_obj in self.__dict__[ref_obj_uppercase_type]:
+                            if ref_config_obj().uuid == ref_obj_uuid:
+                                if ref_obj_uppercase_type not in obj_related_config.keys():
+                                    obj_related_config[ref_obj_uppercase_type] = []
+                                obj_related_config[ref_obj_uppercase_type].append(ref_config_obj(
+                                ).__dict__)
             related_config.update(obj_related_config)
         return related_config
 
@@ -187,14 +211,14 @@ class avi_config():
         for obj_type in obj_dict.keys():
             truncated_config[obj_type] = []
             if obj_dict[obj_type] == []:
-                truncated_config.update(self._get_config(obj_type))
+                truncated_config.update(self._get_obj_config(obj_type))
                 try:
                     truncated_config.update(self._get_related_config(obj_type))
                 except:
                     pass
             else:
                 for obj_name in obj_dict[obj_type]:
-                    truncated_config.update(self._get_config(obj_type, obj_name))
+                    truncated_config.update(self._get_obj_config(obj_type, obj_name))
                     truncated_config.update(self._get_related_config(obj_type, obj_name))
         return truncated_config
 
@@ -285,7 +309,7 @@ class avi_object(object):
             # placeholder for __type__
             if 'url' == attr:
                 self.__dict__['_avi_obj_type'] = (re.search(r"(\/api\/)(\w+)", self.__dict__[attr])).group(2)
-            if re.search(r"(_ref$)|(_refs$)", attr):
+            if re.search(r"(_ref$)|(_refs)", attr):
                 # /api/pool/?tenant=admin&name=vs_192.168.3.11-local_pool&cloud=vmc
                 ref_url = getattr(self, attr)
                 if type(ref_url) is list:
@@ -313,19 +337,34 @@ class avi_object(object):
     def _keys(self):
         return self.__dict__.keys()
     def _values(self):
-        return self.__dict__.values
-    def _refs (self):
+        return self.__dict__.values()
+    def _refs(self):
         refs = {}
-        for key in self._keys():
-            if re.search("(_ref$)|(_refs$)", key):
-                refs[key] = self.__dict__[key]
+        for key in flatten_json(self.__dict__).keys():
+            if re.search("(_ref$)|(_refs)", key):
+                if ':' not in key:
+                    ref_key = key
+                else:
+                    ref_key = self._avi_obj_type + '_' + key
+                refs[ref_key] = flatten_json(self.__dict__)[key]
         return refs
 
+
 if __name__ == "__main__":
+    if flags.GET_AVI_CONFIG:
+        get_avi_config_options = flags.GET_AVI_CONFIG.split(':')
+        avi_controller = get_avi_config_options[0]
+        avi_username = get_avi_config_options[1]
+        avi_password = get_avi_config_options[2]
+        avi_config = get_avi_config(avi_controller,avi_username,avi_password)
+        file_path = flags.OUTPUT_FOLDER+'/' + avi_controller + '_avi_config'
+        config_path = json_to_file(avi_config, file_path)
     if flags.CONFIG:
+        config_path = flags.CONFIG
+        config_name = config_path.split('/')[-1]
         # Load Avi JSON configuration file
-        avi_config_from_file = avi_config(
-                        flags.CONFIG, "config", avi_object)
+        avi_config_from_file = avi_config(config_path,
+        "config", avi_object)
         if flags.CONFIG_PATTERN and flags.OUTPUT_FOLDER:
             # Load Avi JSON pattern file
             avi_config_pattern_from_file = avi_config(
@@ -333,9 +372,9 @@ if __name__ == "__main__":
             if flags.CHECK_RELATED_ONLY:
                 related_config = avi_config_from_file._truncate_config_based_on_pattern(
                     avi_config_pattern_from_file)
-                file_path = flags.OUTPUT_FOLDER+'/'+flags.CONFIG + \
-                    '_related_config.json'
-                json_to_file(related_config, file_path)
+                file_path = flags.OUTPUT_FOLDER+'/'+ config_name + \
+                    '_related_config'
+                file_path = json_to_file(related_config, file_path)
                 related_avi_config_from_file = avi_config(
                         file_path, "config", avi_object)
                 # perform pattern comparison
@@ -345,17 +384,17 @@ if __name__ == "__main__":
                 # perform pattern comparison
                 pattern_match_report = avi_config_from_file._pattern_match(avi_config_pattern_from_file)
             for key in pattern_match_report:
-                file_path = flags.OUTPUT_FOLDER+'/'+flags.CONFIG+'_'+key+'.json'
+                file_path = flags.OUTPUT_FOLDER+'/'+ config_name +'_'+ key
                 json_to_file(pattern_match_report[key], file_path)
-        if flags.OUTPUT_FOLDER and flags.GET_CONFIG:
-            related_config_options = flags.GET_CONFIG.split(':')
+        if flags.OUTPUT_FOLDER and flags.GET_OBJ_CONFIG:
+            related_config_options = flags.GET_OBJ_CONFIG.split(':')
             obj_type = related_config_options[0]
             try:
                 obj_name = related_config_options[1]
             except:
                 obj_name = ''
-            file_path = flags.OUTPUT_FOLDER+'/'+flags.CONFIG+'_'+obj_type+'_'+obj_name+'_config.json'
-            json_to_file(avi_config_from_file._get_config(
+            file_path = flags.OUTPUT_FOLDER+'/'+ config_name +'_'+obj_type+'_'+obj_name+'_config'
+            json_to_file(avi_config_from_file._get_obj_config(
                     obj_type, obj_name), file_path)
         if flags.OUTPUT_FOLDER and flags.GET_RELATED_CONFIG:
             # For example: flags.GET_RELATED_CONFIG = "VirtualService:vs1"
@@ -365,13 +404,14 @@ if __name__ == "__main__":
                 obj_name = related_config_options[1]
             except:
                 obj_name = ''
-            file_path = flags.OUTPUT_FOLDER+'/'+flags.CONFIG + '_'+obj_type+'_'+obj_name+'_related_config.json'
+            file_path = flags.OUTPUT_FOLDER+'/'+ config_name + \
+                '_'+obj_type+'_'+obj_name+'_related_config'
             json_to_file(avi_config_from_file._get_related_config(
                 obj_type, obj_name), file_path)
         if flags.GET_OBJECT_LIST:
             obj_type = flags.GET_OBJECT_LIST
-            file_path = flags.OUTPUT_FOLDER+'/'+flags.CONFIG + \
-                '_'+obj_type+'_object_list.json'
+            file_path = flags.OUTPUT_FOLDER+'/'+ config_name + \
+                '_'+obj_type+'_object_list'
             json_to_file(avi_config_from_file._get_objects_list()[
                 flags.GET_OBJECT_LIST], file_path)
         if flags.GET_SHARED_OBJECTS_LIST:
@@ -379,8 +419,8 @@ if __name__ == "__main__":
             get_shared_objects_list_options = flags.GET_SHARED_OBJECTS_LIST.split(':')
             obj_type = get_shared_objects_list_options[0]
             obj_list = get_shared_objects_list_options[1]
-            file_path = flags.OUTPUT_FOLDER+'/'+flags.CONFIG + \
-                '_'+obj_type+'_shared_objects_list.json'
+            file_path = flags.OUTPUT_FOLDER+'/'+ config_name + \
+                '_'+obj_type+'_shared_objects_list'
             json_to_file(avi_config_from_file._get_shared_objects_list(
                 obj_type,obj_list), file_path)
         if flags.GET_REFERRED_BY_LIST:
@@ -388,7 +428,7 @@ if __name__ == "__main__":
                 ':')
             obj_type = get_referred_by_list_options[0]
             obj_name = get_referred_by_list_options[1]
-            file_path = flags.OUTPUT_FOLDER+'/'+flags.CONFIG + \
-                '_'+obj_type+'_referred_by_list.json'
+            file_path = flags.OUTPUT_FOLDER+'/'+ config_name + \
+                '_'+obj_type+'_referred_by_list'
             json_to_file(avi_config_from_file._get_referred_by_list(
                 obj_type, obj_name), file_path)
