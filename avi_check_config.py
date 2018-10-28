@@ -168,7 +168,6 @@ class avi_config():
         if obj_type in self.__dict__.keys():
             for config_obj in self.__dict__[obj_type]:
                 if config_obj().name == obj_name:
-                    obj_uuid = config_obj().uuid
                     if hasattr(config_obj, 'uuid'):
                         obj_uuid = config_obj().uuid
         for obj_type in self.__dict__.keys():
