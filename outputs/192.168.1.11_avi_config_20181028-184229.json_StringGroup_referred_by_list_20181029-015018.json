@@ -1,0 +1,10 @@
+{
+    "ApplicationProfile": [
+        "System-Secure-HTTP", 
+        "System-HTTP"
+    ], 
+    "HTTPPolicySet": [
+        "vs_avi_check_config_192.168.3.2-vmc-HTTP-Policy-Set", 
+        "vs_avi_check_config_192.168.3.2-vmc-HTTP-Policy-Set"
+    ]
+}

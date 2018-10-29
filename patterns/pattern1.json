@@ -1,0 +1,17 @@
+{
+    "VirtualService": [
+        {
+            "name": [ "vs_gslb02a_192.168.1.17_53", "vs_192.168.1.15"],
+            "network_profile_ref": "TCP",
+            "application_profile_ref": "DNS",
+            "weight": 1
+        }
+    ],
+        "VrfContext": [
+            {
+                "cloud_ref": "Default-Cloud",
+                "system_default": true,
+                "name": "global"
+            }
+        ]
+}

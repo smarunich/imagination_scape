@@ -1,9 +1,0 @@
-{
-    "ApplicationPersistenceProfile": {}, 
-    "Pool": {}, 
-    "SSLProfile": {}, 
-    "ServiceEngineGroup": {}, 
-    "VirtualService": {
-        "vs_192.168.1.15": {
-            "application_profile_ref": {
-                

@@ -1,0 +1,11 @@
+{
+    "VirtualService": {
+        "vs_192.168.1.15": {
+            "application_profile_ref": "/api/applicationprofile/applicationprofile-3b6c5370-952f-43e7-a503-faa9067e6ba3#System-HTTP"
+        }, 
+        "vs_gslb02a_192.168.1.17_53": {
+            "network_profile_ref": "/api/networkprofile/networkprofile-b7ed35ca-ab42-4b56-a666-297d46418e7f#System-UDP-Per-Pkt"
+        }
+    }, 
+    "VrfContext": {}
+}

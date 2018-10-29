@@ -1,0 +1,113 @@
+{
+    "Pool": [
+        {
+            "lb_algorithm": "LB_ALGORITHM_LEAST_CONNECTIONS", 
+            "use_service_port": false, 
+            "rewrite_host_header_to_server_name": false, 
+            "host_check_enabled": false, 
+            "tenant_ref": "/api/tenant/admin#admin", 
+            "rewrite_host_header_to_sni": false, 
+            "capacity_estimation": false, 
+            "servers": [
+                {
+                    "hostname": "uboat01", 
+                    "prst_hdr_val": "", 
+                    "ip": {
+                        "type": "V4", 
+                        "addr": "192.168.0.41"
+                    }, 
+                    "discovered_networks": [
+                        {
+                            "subnet": [
+                                {
+                                    "mask": 21, 
+                                    "ip_addr": {
+                                        "type": "V4", 
+                                        "addr": "192.168.0.0"
+                                    }
+                                }
+                            ], 
+                            "network_ref": "/api/network/network-14-cloud-66b8db25-93f6-4460-a250-f5e535be1d33#VM Network"
+                        }
+                    ], 
+                    "enabled": true, 
+                    "nw_ref": "/api/vimgrnwruntime/network-14-cloud-66b8db25-93f6-4460-a250-f5e535be1d33#VM Network", 
+                    "verify_network": false, 
+                    "static": false, 
+                    "resolve_server_by_dns": false, 
+                    "ratio": 1, 
+                    "vm_ref": "/api/vimgrvmruntime/vm-421d9ba8-da4b-dc8d-349b-f2a910c5b55f#uboat01", 
+                    "rewrite_host_header": false, 
+                    "external_uuid": "vm-421d9ba8-da4b-dc8d-349b-f2a910c5b55f"
+                }, 
+                {
+                    "hostname": "uboat01", 
+                    "prst_hdr_val": "", 
+                    "ip": {
+                        "type": "V4", 
+                        "addr": "192.168.0.42"
+                    }, 
+                    "discovered_networks": [
+                        {
+                            "subnet": [
+                                {
+                                    "mask": 21, 
+                                    "ip_addr": {
+                                        "type": "V4", 
+                                        "addr": "192.168.0.0"
+                                    }
+                                }
+                            ], 
+                            "network_ref": "/api/network/network-14-cloud-66b8db25-93f6-4460-a250-f5e535be1d33#VM Network"
+                        }
+                    ], 
+                    "enabled": true, 
+                    "nw_ref": "/api/vimgrnwruntime/network-14-cloud-66b8db25-93f6-4460-a250-f5e535be1d33#VM Network", 
+                    "verify_network": false, 
+                    "static": false, 
+                    "resolve_server_by_dns": false, 
+                    "ratio": 1, 
+                    "vm_ref": "/api/vimgrvmruntime/vm-421d9ba8-da4b-dc8d-349b-f2a910c5b55f#uboat01", 
+                    "rewrite_host_header": false, 
+                    "external_uuid": "vm-421d9ba8-da4b-dc8d-349b-f2a910c5b55f"
+                }
+            ], 
+            "fewest_tasks_feedback_delay": 10, 
+            "server_auto_scale": false, 
+            "fail_action": {
+                "type": "FAIL_ACTION_CLOSE_CONN"
+            }, 
+            "lookup_server_by_name": false, 
+            "networks": [
+                {
+                    "network_ref": "/api/vimgrnwruntime/network-14-cloud-66b8db25-93f6-4460-a250-f5e535be1d33#VM Network"
+                }
+            ], 
+            "sni_enabled": true, 
+            "cloud_ref": "/api/cloud/cloud-66b8db25-93f6-4460-a250-f5e535be1d33#vmc", 
+            "lb_algorithm_core_nonaffinity": 2, 
+            "server_reselect": {
+                "retry_nonidempotent": false, 
+                "num_retries": 4, 
+                "enabled": false
+            }, 
+            "_avi_obj_type": "pool", 
+            "vrf_ref": "/api/vrfcontext/vrfcontext-ca0361bd-c1c2-4323-a296-a61f00572547#global", 
+            "inline_health_monitor": true, 
+            "default_server_port": 80, 
+            "request_queue_depth": 128, 
+            "graceful_disable_timeout": 0, 
+            "server_count": 2, 
+            "uuid": "pool-301be74c-2e26-4401-9c3f-2cb87e1187dc", 
+            "request_queue_enabled": false, 
+            "name": "vs_192.168.3.11-local_pool", 
+            "max_concurrent_connections_per_server": 0, 
+            "url": "/api/pool/pool-301be74c-2e26-4401-9c3f-2cb87e1187dc#vs_192.168.3.11-local_pool", 
+            "enabled": true, 
+            "health_monitor_refs": [
+                "/api/healthmonitor/healthmonitor-a7a41e2d-6f0a-4ca9-ba8d-7b9f380b426a#System-HTTP"
+            ], 
+            "connection_ramp_duration": 10
+        }
+    ]
+}

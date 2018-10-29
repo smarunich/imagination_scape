@@ -1,0 +1,8 @@
+{
+    "VirtualService": {}, 
+    "VrfContext": {
+        "global": {
+            "system_default": true
+        }
+    }
+}

@@ -1,0 +1,7 @@
+{
+    "cloud_ref": "/api/cloud/cloud-66b8db25-93f6-4460-a250-f5e535be1d33#vmc", 
+    "pool_health_monitor_refs:0": "/api/healthmonitor/healthmonitor-a7a41e2d-6f0a-4ca9-ba8d-7b9f380b426a#System-HTTP", 
+    "tenant_ref": "/api/tenant/admin#admin", 
+    "pool_health_monitor_refs:1": "/api/healthmonitor/healthmonitor-ab57bef3-f2cf-4fa5-a033-d61a35d85672#System-Ping", 
+    "vrf_ref": "/api/vrfcontext/vrfcontext-ca0361bd-c1c2-4323-a296-a61f00572547#global"
+}

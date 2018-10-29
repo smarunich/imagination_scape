@@ -1,0 +1,9 @@
+{
+    "HTTPPolicySet": [
+        "vs_avi_check_config_192.168.3.2-vmc-HTTP-Policy-Set", 
+        "vs_avi_check_config_192.168.3.2-vmc-HTTP-Policy-Set"
+    ], 
+    "VirtualService": [
+        "vs_avi_check_config_autoip1"
+    ]
+}

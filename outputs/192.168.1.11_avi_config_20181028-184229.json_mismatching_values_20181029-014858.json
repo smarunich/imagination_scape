@@ -1,0 +1,8 @@
+{
+    "VirtualService": {}, 
+    "VrfContext": {
+        "global": {
+            "cloud_ref": "/api/cloud/cloud-66b8db25-93f6-4460-a250-f5e535be1d33#vmc"
+        }
+    }
+}

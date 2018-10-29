@@ -1,0 +1,81 @@
+{
+    "Tenant": [
+        {
+            "name": "admin", 
+            "extension": {
+                "macro_in_progress": 0, 
+                "tenant_force_delete_in_progress": false
+            }, 
+            "url": "/api/tenant/admin#admin", 
+            "_avi_obj_type": "tenant", 
+            "local": true, 
+            "uuid": "admin"
+        }, 
+        {
+            "name": "admin", 
+            "extension": {
+                "macro_in_progress": 0, 
+                "tenant_force_delete_in_progress": false
+            }, 
+            "url": "/api/tenant/admin#admin", 
+            "_avi_obj_type": "tenant", 
+            "local": true, 
+            "uuid": "admin"
+        }
+    ], 
+    "VirtualService": [], 
+    "VrfContext": [
+        {
+            "name": "global", 
+            "cloud_ref": "/api/cloud/cloud-66b8db25-93f6-4460-a250-f5e535be1d33#vmc", 
+            "_avi_obj_type": "vrfcontext", 
+            "tenant_ref": "/api/tenant/admin#admin", 
+            "url": "/api/vrfcontext/vrfcontext-ca0361bd-c1c2-4323-a296-a61f00572547#global", 
+            "system_default": true, 
+            "uuid": "vrfcontext-ca0361bd-c1c2-4323-a296-a61f00572547"
+        }
+    ], 
+    "Cloud": [
+        {
+            "dhcp_enabled": false, 
+            "license_tier": "ENTERPRISE_18", 
+            "name": "Default-Cloud", 
+            "url": "/api/cloud/cloud-8e719cf1-9b69-4203-b53b-931170f348fa#Default-Cloud", 
+            "_avi_obj_type": "cloud", 
+            "tenant_ref": "/api/tenant/admin#admin", 
+            "uuid": "cloud-8e719cf1-9b69-4203-b53b-931170f348fa", 
+            "mtu": 1500, 
+            "vtype": "CLOUD_NONE", 
+            "prefer_static_routes": false, 
+            "license_type": "LIC_CORES", 
+            "apic_mode": false, 
+            "enable_vip_static_routes": false, 
+            "state_based_dns_registration": true
+        }, 
+        {
+            "mtu": 1500, 
+            "license_tier": "ENTERPRISE_18", 
+            "name": "vmc", 
+            "vcenter_configuration": {
+                "username": "administrator@vsphere.local", 
+                "datacenter": "lab", 
+                "management_network": "/api/vimgrnwruntime/network-14-cloud-66b8db25-93f6-4460-a250-f5e535be1d33#VM Network", 
+                "privilege": "WRITE_ACCESS", 
+                "vcenter_url": "labvc01", 
+                "password": "VMware1!"
+            }, 
+            "url": "/api/cloud/cloud-66b8db25-93f6-4460-a250-f5e535be1d33#vmc", 
+            "_avi_obj_type": "cloud", 
+            "tenant_ref": "/api/tenant/admin#admin", 
+            "uuid": "cloud-66b8db25-93f6-4460-a250-f5e535be1d33", 
+            "enable_vip_static_routes": false, 
+            "vtype": "CLOUD_VCENTER", 
+            "prefer_static_routes": false, 
+            "license_type": "LIC_CORES", 
+            "ipam_provider_ref": "/api/ipamdnsproviderprofile/ipamdnsproviderprofile-bc2f1203-7c44-409e-aba4-792ba8daf013#vmc_ipam", 
+            "apic_mode": false, 
+            "dhcp_enabled": true, 
+            "state_based_dns_registration": true
+        }
+    ]
+}

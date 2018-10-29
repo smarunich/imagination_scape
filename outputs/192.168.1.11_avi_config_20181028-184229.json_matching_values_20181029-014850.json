@@ -1,0 +1,18 @@
+{
+    "VirtualService": {
+        "vs_192.168.1.15": {
+            "network_profile_ref": "/api/networkprofile/networkprofile-0d9604be-f955-4b0c-8d0e-cb46aedba2a5#System-TCP-Proxy", 
+            "weight": 1
+        }, 
+        "vs_gslb02a_192.168.1.17_53": {
+            "application_profile_ref": "/api/applicationprofile/applicationprofile-c5146bbb-0c9f-445b-b11f-e53c8173e7aa#System-DNS", 
+            "weight": 1
+        }
+    }, 
+    "VrfContext": {
+        "global": {
+            "cloud_ref": "/api/cloud/cloud-8e719cf1-9b69-4203-b53b-931170f348fa#Default-Cloud", 
+            "system_default": true
+        }
+    }
+}

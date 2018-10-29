@@ -1,0 +1,45 @@
+{
+    "Pool": [
+        {
+            "lb_algorithm": "LB_ALGORITHM_LEAST_CONNECTIONS", 
+            "use_service_port": false, 
+            "rewrite_host_header_to_server_name": false, 
+            "host_check_enabled": false, 
+            "tenant_ref": "/api/tenant/admin#admin", 
+            "rewrite_host_header_to_sni": false, 
+            "capacity_estimation": false, 
+            "fewest_tasks_feedback_delay": 10, 
+            "server_auto_scale": false, 
+            "fail_action": {
+                "type": "FAIL_ACTION_CLOSE_CONN"
+            }, 
+            "lookup_server_by_name": false, 
+            "sni_enabled": true, 
+            "cloud_ref": "/api/cloud/cloud-66b8db25-93f6-4460-a250-f5e535be1d33#vmc", 
+            "lb_algorithm_core_nonaffinity": 2, 
+            "server_reselect": {
+                "retry_nonidempotent": false, 
+                "num_retries": 4, 
+                "enabled": false
+            }, 
+            "_avi_obj_type": "pool", 
+            "vrf_ref": "/api/vrfcontext/vrfcontext-ca0361bd-c1c2-4323-a296-a61f00572547#global", 
+            "inline_health_monitor": true, 
+            "default_server_port": 80, 
+            "request_queue_depth": 128, 
+            "graceful_disable_timeout": 1, 
+            "server_count": 0, 
+            "uuid": "pool-6b1f492d-e3e6-404c-ac59-831597c82ab6", 
+            "request_queue_enabled": false, 
+            "name": "vs_avi_check_config_autoip-pool1", 
+            "max_concurrent_connections_per_server": 0, 
+            "url": "/api/pool/pool-6b1f492d-e3e6-404c-ac59-831597c82ab6#vs_avi_check_config_autoip-pool1", 
+            "enabled": true, 
+            "health_monitor_refs": [
+                "/api/healthmonitor/healthmonitor-a7a41e2d-6f0a-4ca9-ba8d-7b9f380b426a#System-HTTP", 
+                "/api/healthmonitor/healthmonitor-ab57bef3-f2cf-4fa5-a033-d61a35d85672#System-Ping"
+            ], 
+            "connection_ramp_duration": 10
+        }
+    ]
+}
